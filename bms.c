@@ -87,7 +87,10 @@ void do_communication(int bmsfd)
                          flag = 0;
                     }
                     else
+                    {
                          sprintf(buf, SAN_WA, "00000100");
+                         ++flag;
+                    }
                }
                else if(!memcmp(buf, "(S", 2))
                {
@@ -120,7 +123,6 @@ void do_communication(int bmsfd)
                if (sizeof(buf) > 5)
                {
                     n = select_write(bmsfd, buf, strlen(buf), 3, 0);
-                    ++flag;
                }
                else
                     continue;
