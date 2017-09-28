@@ -97,7 +97,7 @@ void do_communication(int bmsfd)
                     int i = 3;
                     for(; i > 0; --i)
                     {
-                         n = select_write(bmsfd, "1", 1, 3, 0);
+                         n = select_write(bmsfd, "1\r", 2, 3, 0);
                          if(n == 1)
                               break;
                     }
@@ -113,7 +113,7 @@ void do_communication(int bmsfd)
                     remain = atof(tmp) * 60;
                     for(;remain > 0; --remain)
                     {
-                         printf("Battery will be turned off with in %.2f s\n", remain);
+                         printf("Battery will be turned off within %.2f s\n", remain);
                          sleep(1);
                     }
                     printf("BMS exits!\n");

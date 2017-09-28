@@ -170,6 +170,7 @@ void send_info(struct epoll_event * p_ev, int epfd)
 
      if(!memcmp(buf, "shutdown", 8))
      {
+          write(psif->fd, "1", 2);
           close_connection(psif, epfd);
           exit(EXIT_SUCCESS);
      }

@@ -31,6 +31,8 @@
 #define santak_Debug 0  /* added */
 #define SERVER_IP "172.16.134.221"
 #define SERVER_PORT 23333
+#define CONFIRM_SIG "1"
+#define SHUT_SER "shutdown"
 
 /* driver description structure */
 upsdrv_info_t upsdrv_info = {
@@ -115,7 +117,7 @@ static int close_server()
                ret = -1;
                continue;
           }
-          ret = write(ser_fd, "shutdown", 9);
+          ret = write(ser_fd, SHUT_SER, strlen(SHUT_SER)+1);
           if(ret != 9)
           {
                upslogx(LOG_INFO, "write to socket failed![%d]", errno);
@@ -124,9 +126,18 @@ static int close_server()
           }
           else
           {
+               ret = read(ser_fd, buf, sizeof(buf));
+               if(ret <= 0)
+                    continue;
+                    
+               if(memcmp(buf, CONFIRM_SIG, strlen(CONFIRM_SIG)))
+                    continue;
+
                close(ser_fd);
                ser_fd = 0;
+#if santak_Debug
                printf("Server exiting!\n");
+#endif
           }
 
           ret = ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
@@ -146,6 +157,33 @@ static int close_server()
      return ret;
 }
 
+static int shutdown_ups()
+{
+     int i = 0;
+     char buf[256] = {0};
+     int ret = 0;
+     for(i = 0; i < MAXTRIES; ++i)
+     {
+          ret = ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
+
+          usleep(200000);
+          ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", SER_WAIT_SEC, SER_WAIT_USEC);
+          if(ret > 0)
+          {
+               if(memcmp(buf, CONFIRM_SIG, 1))
+                    continue;
+          }
+#if santak_Debug
+          printf("%s\n", buf);
+#endif
+          printf("Exiting!\n");
+          sleep(1);
+          return 0;
+     }
+
+     return ret;
+}
+
 static void ups_sync(void)
 {
      char	buf[256];
@@ -157,11 +195,11 @@ static void ups_sync(void)
           ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
                     SER_WAIT_SEC, SER_WAIT_USEC);
 
+#if santak_Debug
           if(ret > 0)
-          {
-               write(STDOUT_FILENO, buf, ret);
-               printf("\n");
-          }
+               printf("%s\n", buf);
+#endif 
+
           /* return once we get something that looks usable */
           if ((ret > 0) && (buf[0] == '('))
                return;
@@ -203,14 +241,20 @@ void upsdrv_initinfo(void)
 
 static int ups_on_line(void)
 {
-     int	i, ret, sys_mode;
+     int	i, sys_mode;
      char	buf[256];
+     int ret = 0;
 
      for (i = 0; i < MAXTRIES; i++) {
           ser_send_pace(upsfd, UPSDELAY, "Q6\r");
 
           ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
                     SER_WAIT_SEC, SER_WAIT_USEC);
+          if(ret < 0)
+          {
+               upslogx(LOG_WARNING, "Detect ups on line error! [%s]", strerror(errno));
+               continue;
+          }
 
           sscanf(buf, "%*c%*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*d %*d %d %*d %*s %*s %*s", &sys_mode);
 
@@ -232,8 +276,6 @@ static int ups_on_line(void)
 
 void upsdrv_shutdown(void)
 {
-     char buf[128] = {0};
-     int i = 0;
 #if 0
      printf("The UPS will shut down in 12s.\n");
 
@@ -242,22 +284,18 @@ void upsdrv_shutdown(void)
      else
           printf("The UPS will restart when power returns.\n");
 #endif
-     for(i = 0; i < MAXTRIES; ++i)
-     {
-          ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
+     close_server();
 
-          usleep(200000);
-          ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", SER_WAIT_SEC, SER_WAIT_USEC);
-          if(buf[0] != '1')
-               continue;
-#if santak_Debug
-          printf("%s\n", buf);
-#endif
-          printf("Exiting!\n");
-          sleep(1);
-          exit_flag = SIGTERM;
-          return;
+     if(ups_on_line() && (atoi(dstate_getinfo("ups.work.mode")) == Line))
+     {
+          shutdown_ups();
      }
+     else if(!ups_on_line())
+     {
+          close_server();
+     }
+     else
+          upslogx(LOG_INFO, "Ups has been shutdown!");
 }
 
 static void Q6()                    /* added */
@@ -267,7 +305,6 @@ static void Q6()                    /* added */
      char fault_code[16], warn_code[16], buf[256]; /* modified */
 
      int ret = 0;
-     int i = 0;
 
      ret = ser_send_pace(upsfd, UPSDELAY, "Q6\r");
 
@@ -369,7 +406,7 @@ static void WA()               /* added */
      ser_comm_good();
 
 #if santak_Debug
-     write(STDOUT_FILENO, buf, strlen(buf));
+     printf("%s\n", buf);
      printf("\n");
 #endif
      /* (254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r */
