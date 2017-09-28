@@ -28,7 +28,7 @@
 #define DRIVER_NAME	"santak_c6_20ks"/* modified */
 #define DRIVER_VERSION	"1.01" /* modified */
 
-#define santak_Debug 1  /* added */
+#define santak_Debug 0  /* added */
 #define SERVER_IP "172.16.134.221"
 #define SERVER_PORT 23333
 
@@ -109,7 +109,9 @@ static int close_server()
           if(connect(ser_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)))
           {
                upslogx(LOG_INFO, "connect to socket failed![%d]", errno);
+#if santak_Debug
                printf("WA connect to socket failed![%s]", strerror(errno));
+#endif
                ret = -1;
                continue;
           }
