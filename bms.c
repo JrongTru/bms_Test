@@ -113,7 +113,7 @@ void do_communication(int bmsfd)
                     remain = atof(tmp) * 60;
                     for(;remain > 0; --remain)
                     {
-                         printf("Battery will be turned off within %.2f s\n", remain);
+                         printf("Battery will be turned off withi %.2f s\n", remain);
                          sleep(1);
                     }
                     printf("BMS exits!\n");
