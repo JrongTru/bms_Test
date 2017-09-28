@@ -29,6 +29,8 @@
 #define DRIVER_VERSION	"1.01" /* modified */
 
 #define santak_Debug 1  /* added */
+#define SERVER_IP "172.16.134.221"
+#define SERVER_PORT 23333
 
 /* driver description structure */
 upsdrv_info_t upsdrv_info = {
@@ -86,6 +88,62 @@ static int instcmd(const char *cmdname, const char *extra)
 }
 #endif
 
+static int close_server()
+{
+     int i = 0;
+     int ret = 0;
+     char buf[256] = {0};
+     for(; i < MAXTRIES; ++i)
+     {
+          if(!ser_fd || ser_fd < 0)
+          {
+               ser_fd = socket(AF_INET, SOCK_STREAM, 0);
+               if(ser_fd < 0)
+               {
+                    upslogx(LOG_INFO, "Create socket file descriptor err! [%s]", strerror(errno));
+                    ret = errno;
+                    continue;
+               }
+               ret = 0;
+          }
+          if(connect(ser_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)))
+          {
+               upslogx(LOG_INFO, "connect to socket failed![%d]", errno);
+               printf("WA connect to socket failed![%s]", strerror(errno));
+               ret = -1;
+               continue;
+          }
+          ret = write(ser_fd, "shutdown", 9);
+          if(ret != 9)
+          {
+               upslogx(LOG_INFO, "write to socket failed![%d]", errno);
+               ret = -1;
+               continue;
+          }
+          else
+          {
+               close(ser_fd);
+               ser_fd = 0;
+               printf("Server exiting!\n");
+          }
+
+          ret = ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
+
+          usleep(200000);
+          ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", SER_WAIT_SEC, SER_WAIT_USEC);
+          if(buf[0] != '1')
+               continue;
+#if santak_Debug
+          printf("%s\n", buf);
+#endif
+          upslogx(LOG_INFO, "Server closed.");
+          sleep(1);
+          return 0;
+     }
+
+     return ret;
+}
+
 static void ups_sync(void)
 {
      char	buf[256];
@@ -119,15 +177,16 @@ void upsdrv_initinfo(void)
      ups_sync();
 
      model_set("SAN", "MT 500pro");
-
+#if 0
      ser_fd = socket(AF_INET, SOCK_STREAM, 0);
      if(ser_fd < 0)
           fatalx(EXIT_SUCCESS, "Create fd to server failed! [%d]", errno);
-     
+#endif
+
      memset(&serv_addr, 0, sizeof(serv_addr));
      serv_addr.sin_family = AF_INET;
-     serv_addr.sin_port = htons(23333);
-     inet_pton(AF_INET, "192.168.177.133", &serv_addr.sin_addr.s_addr);
+     serv_addr.sin_port = htons(SERVER_PORT);
+     inet_pton(AF_INET, SERVER_IP, &serv_addr.sin_addr.s_addr);
 
      printf("Detected %s %s on %s\n", dstate_getinfo("ups.mfr"), 
                dstate_getinfo("ups.model"), device_path);
@@ -139,19 +198,26 @@ void upsdrv_initinfo(void)
 
 #endif
 }
-#if 0
+
 static int ups_on_line(void)
 {
-     int	i, ret;
-     char	temp[256] = {0};
+     int	i, ret, sys_mode;
+     char	buf[256];
 
      for (i = 0; i < MAXTRIES; i++) {
-          ser_send_pace(upsfd, UPSDELAY, "WA\r");
+          ser_send_pace(upsfd, UPSDELAY, "Q6\r");
 
-          ret = ser_get_line(upsfd, temp, sizeof(temp), ENDCHAR, "", 
+          ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
                     SER_WAIT_SEC, SER_WAIT_USEC);
-          ssanf
+
+          sscanf(buf, "%*c%*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*d %*d %d %*d %*s %*s %*s", &sys_mode);
+
+#if santak_Debug
+          printf("system on mode: [%d]\n", sys_mode);
+#endif
+          if(Line == sys_mode)
                return 1;	/* on line */
+
           return 0;	/*on battery */
 
           sleep(1);
@@ -161,7 +227,6 @@ static int ups_on_line(void)
 
      return 0;	/* on battery */
 }	
-#endif
 
 void upsdrv_shutdown(void)
 {
@@ -193,7 +258,7 @@ void upsdrv_shutdown(void)
      }
 }
 
-static void Q6(struct sockaddr* serv_addr, socklen_t len)                    /* added */
+static void Q6()                    /* added */
 {
      float R_in_volt, ups_in_Hz, R_out_volt, ups_out_Hz, out_current, p_batt_volt, n_batt_volt, ups_temp;
      int remain_time, cap_percentage, sys_mode, bat_test_status;
@@ -236,7 +301,7 @@ static void Q6(struct sockaddr* serv_addr, socklen_t len)                    /* 
 #endif
      /*"(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d 3 2 NULL NULL YO\r"*/
      sscanf(buf, "%*c%f %*f %*f %f %f %*f %*f %f %f %*f %*f %f %f %f %d %d %d %d %s %s %*s", &R_in_volt, &ups_in_Hz, &R_out_volt,  &ups_out_Hz, &out_current, &p_batt_volt, &n_batt_volt, &ups_temp, &remain_time, &cap_percentage, &sys_mode, &bat_test_status, fault_code, warn_code);
-     
+
 #if santak_Debug
      printf("%f %f %f %f %f %f %f %f %d %d %d %d %s %s.\n", R_in_volt, ups_in_Hz, R_out_volt, ups_out_Hz, out_current, p_batt_volt, n_batt_volt, ups_temp, remain_time, cap_percentage, sys_mode, bat_test_status, fault_code, warn_code);
 #endif
@@ -244,63 +309,12 @@ static void Q6(struct sockaddr* serv_addr, socklen_t len)                    /* 
      if(remain_time > 360)
           dstate_setinfo("battery.remain.time", "%d", remain_time);
      else
-     {
-          for(i = 0; i < MAXTRIES; ++i)
-          {
-               if(connect(ser_fd, serv_addr, len))
-               {
-                    upslogx(LOG_INFO, "connect to socket failed![%d]", errno);
-                    continue;
-               }
-               ret = write(ser_fd, "shutdown", 9);
-               if(ret != 8)
-               {
-                    upslogx(LOG_INFO, "write to socket failed![%d]", errno);
-                    continue;
-               }
-               else
-                    printf("Server exiting!\n");
+          close_server();
 
-
-               ret = ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
-
-               usleep(200000);
-               ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", SER_WAIT_SEC, SER_WAIT_USEC);
-                    
-
-               if(buf[0] != '1')
-                    continue;
-#if santak_Debug
-               printf("%s\n", buf);
-#endif
-               upslogx(LOG_INFO, "remain time less than [%d]", remain_time);
-               sleep(1);
-               return;
-          }
-     }
-
-     if(cap_percentage > 50)
+     if(cap_percentage > 40)
           dstate_setinfo("battery.charge", "%d", cap_percentage);
      else
-     {
-          for(i = 0; i < MAXTRIES; ++i)
-          {
-               ret = ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
-
-               usleep(200000);
-               ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", SER_WAIT_SEC, SER_WAIT_USEC);
-               if(buf[0] != '1')
-                    continue;
-#if santak_Debug
-               printf("%s\n", buf);
-#endif
-               upslogx(LOG_INFO, "Low percentage [%d]", cap_percentage);
-               printf("Exiting!\n");
-               sleep(1);
-               exit_flag = SIGTERM;
-               return;
-          }
-     }
+          close_server();
 
 
      dstate_setinfo("ups.R_input.voltage", "%f", R_in_volt);
@@ -318,7 +332,7 @@ static void Q6(struct sockaddr* serv_addr, socklen_t len)                    /* 
 
 }
 
-static void WA(struct sockaddr *serv_addr, socklen_t len)               /* added */
+static void WA()               /* added */
 {
      float R_out_power, total_power, R_out_ap_power, total_ap_power, out_current, out_load_percentage;
      char ups_status[64], buf[256]; /* modified */
@@ -365,24 +379,7 @@ static void WA(struct sockaddr *serv_addr, socklen_t len)               /* added
 
      if(ups_status[4] == '1')
      {
-          int i = 0;
-          for(; i < MAXTRIES; ++i)
-          {
-               ret = ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
-
-               usleep(200000);
-               ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", SER_WAIT_SEC, SER_WAIT_USEC);
-               if(buf[0] != '1')
-                    continue;
-#if santak_Debug
-               printf("%s\n", buf);
-#endif
-               upslogx(LOG_INFO, "UPS device fault [%s]", ups_status);
-               printf("Exiting!\n");
-               sleep(1);
-               exit_flag = SIGTERM;
-               return;
-          }
+          close_server();
      }
 
      dstate_setinfo("R_output.power", "%f", R_out_power);
@@ -398,11 +395,9 @@ static void WA(struct sockaddr *serv_addr, socklen_t len)               /* added
 
 void upsdrv_updateinfo(void)        /* modified */
 {
-
-
-     Q6((struct sockaddr *)&serv_addr, sizeof(serv_addr));
+     Q6();
      usleep(50000);
-     WA((struct sockaddr *)&serv_addr, sizeof(serv_addr));
+     WA();
 
      status_init();
      status_commit();

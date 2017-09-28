@@ -572,8 +572,8 @@ configure:6848: $? = 0
 configure:6848: result: yes
 configure:6848: checking for fcvtl
 configure:6848: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccBQbzs5.o: In function `main':
-/home/tru/packages/nut-2.7.2/conftest.c:67: undefined reference to `fcvtl'
+/tmp/ccsuSBQz.o: In function `main':
+/home/tru/package/bms_Test/nut-2.7.2/conftest.c:67: undefined reference to `fcvtl'
 collect2: error: ld returned 1 exit status
 configure:6848: $? = 1
 configure: failed program was:
@@ -666,8 +666,8 @@ configure:6872: $? = 0
 configure:6872: result: yes
 configure:6872: checking for getpassphrase
 configure:6872: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccVrtMLj.o: In function `main':
-/home/tru/packages/nut-2.7.2/conftest.c:71: undefined reference to `getpassphrase'
+/tmp/ccxgn7RB.o: In function `main':
+/home/tru/package/bms_Test/nut-2.7.2/conftest.c:71: undefined reference to `getpassphrase'
 collect2: error: ld returned 1 exit status
 configure:6872: $? = 1
 configure: failed program was:
@@ -1120,8 +1120,8 @@ configure:7627: $? = 0
 configure:7627: result: yes
 configure:7640: checking for library containing pthread_create
 configure:7671: gcc -o conftest -g -O2 -Wall -Wsign-compare   conftest.c  >&5
-/tmp/cc6YNEPp.o: In function `main':
-/home/tru/packages/nut-2.7.2/conftest.c:67: undefined reference to `pthread_create'
+/tmp/ccrahcuE.o: In function `main':
+/home/tru/package/bms_Test/nut-2.7.2/conftest.c:67: undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
 configure:7671: $? = 1
 configure: failed program was:
@@ -1384,7 +1384,7 @@ configure: failed program was:
 configure:7912: result: no
 configure:7927: checking for init_snmp
 configure:7927: gcc -o conftest    conftest.c  >&5
-/tmp/cc27XfQE.o: In function `main':
+/tmp/ccgjSVaE.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `init_snmp'
 collect2: error: ld returned 1 exit status
 configure:7927: $? = 1
@@ -1796,7 +1796,7 @@ configure: failed program was:
 configure:8246: result: no
 configure:8261: checking for ne_xml_dispatch_request
 configure:8261: gcc -o conftest    conftest.c  >&5
-/tmp/ccGElJ5P.o: In function `main':
+/tmp/cc8cYpTP.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `ne_xml_dispatch_request'
 collect2: error: ld returned 1 exit status
 configure:8261: $? = 1
@@ -2000,7 +2000,7 @@ configure: failed program was:
 configure:8357: result: no
 configure:8372: checking for pm_connect
 configure:8372: gcc -o conftest    conftest.c  >&5
-/tmp/ccOD3myV.o: In function `main':
+/tmp/cckMvyrV.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `pm_connect'
 collect2: error: ld returned 1 exit status
 configure:8372: $? = 1
@@ -2208,7 +2208,7 @@ configure: failed program was:
 configure:8465: result: no
 configure:8480: checking for avahi_free
 configure:8480: gcc -o conftest    conftest.c  >&5
-/tmp/ccMW4rCX.o: In function `main':
+/tmp/cckkBx4Z.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `avahi_free'
 collect2: error: ld returned 1 exit status
 configure:8480: $? = 1
@@ -3585,8 +3585,8 @@ configure: failed program was:
 configure:10481: result: no
 configure:10494: checking for library containing yp_get_default_domain
 configure:10525: gcc -o conftest -g -O2 -Wall -Wsign-compare   conftest.c  >&5
-/tmp/ccBHQHpo.o: In function `main':
-/home/tru/packages/nut-2.7.2/conftest.c:69: undefined reference to `yp_get_default_domain'
+/tmp/ccyua96t.o: In function `main':
+/home/tru/package/bms_Test/nut-2.7.2/conftest.c:69: undefined reference to `yp_get_default_domain'
 collect2: error: ld returned 1 exit status
 configure:10525: $? = 1
 configure: failed program was:
@@ -3920,8 +3920,8 @@ configure: failed program was:
 configure:10726: result: no
 configure:10739: checking for library containing lt_dlinit
 configure:10770: gcc -o conftest -g -O2 -Wall -Wsign-compare   conftest.c  >&5
-/tmp/ccT0ce0u.o: In function `main':
-/home/tru/packages/nut-2.7.2/conftest.c:69: undefined reference to `lt_dlinit'
+/tmp/ccAlAvhC.o: In function `main':
+/home/tru/package/bms_Test/nut-2.7.2/conftest.c:69: undefined reference to `lt_dlinit'
 collect2: error: ld returned 1 exit status
 configure:10770: $? = 1
 configure: failed program was:
@@ -4688,7 +4688,7 @@ lt_cv_to_tool_file_cmd=func_convert_file_noop
 ## ----------------- ##
 
 A2X='none'
-ACLOCAL='${SHELL} /home/tru/packages/nut-2.7.2/missing --run aclocal-1.11'
+ACLOCAL='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run aclocal-1.11'
 AMDEPBACKSLASH='\'
 AMDEP_FALSE='#'
 AMDEP_TRUE=''
@@ -4696,9 +4696,9 @@ AMTAR='$${TAR-tar}'
 AR='/usr/bin/ar'
 ASCIIDOC='none'
 ASPELL='/usr/bin/aspell'
-AUTOCONF='${SHELL} /home/tru/packages/nut-2.7.2/missing --run autoconf'
-AUTOHEADER='${SHELL} /home/tru/packages/nut-2.7.2/missing --run autoheader'
-AUTOMAKE='${SHELL} /home/tru/packages/nut-2.7.2/missing --run automake-1.11'
+AUTOCONF='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run autoconf'
+AUTOHEADER='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run autoheader'
+AUTOMAKE='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run automake-1.11'
 AWK='mawk'
 BINDIR='/usr/local/ups/bin'
 CC='gcc'
@@ -4775,7 +4775,7 @@ LTLIBOBJS=''
 MAINT='#'
 MAINTAINER_MODE_FALSE=''
 MAINTAINER_MODE_TRUE='#'
-MAKEINFO='${SHELL} /home/tru/packages/nut-2.7.2/missing --run makeinfo'
+MAKEINFO='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run makeinfo'
 MANIFEST_TOOL=':'
 MANUALUPDATE_FALSE=''
 MANUALUPDATE_TRUE='#'
@@ -4900,7 +4900,7 @@ hotplugdir=''
 htmldir='${prefix}/html'
 includedir='${prefix}/include'
 infodir='${datarootdir}/info'
-install_sh='${SHELL} /home/tru/packages/nut-2.7.2/install-sh'
+install_sh='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localedir='${datarootdir}/locale'

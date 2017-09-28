@@ -437,7 +437,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/tru/packages/nut-2.7.2'
+ac_pwd='/home/tru/package/bms_Test/nut-2.7.2'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/bin/mkdir -p'
@@ -1097,12 +1097,12 @@ S["mkdir_p"]="/bin/mkdir -p"
 S["MKDIR_P"]="/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]="strip"
-S["install_sh"]="${SHELL} /home/tru/packages/nut-2.7.2/install-sh"
-S["MAKEINFO"]="${SHELL} /home/tru/packages/nut-2.7.2/missing --run makeinfo"
-S["AUTOHEADER"]="${SHELL} /home/tru/packages/nut-2.7.2/missing --run autoheader"
-S["AUTOMAKE"]="${SHELL} /home/tru/packages/nut-2.7.2/missing --run automake-1.11"
-S["AUTOCONF"]="${SHELL} /home/tru/packages/nut-2.7.2/missing --run autoconf"
-S["ACLOCAL"]="${SHELL} /home/tru/packages/nut-2.7.2/missing --run aclocal-1.11"
+S["install_sh"]="${SHELL} /home/tru/package/bms_Test/nut-2.7.2/install-sh"
+S["MAKEINFO"]="${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run makeinfo"
+S["AUTOHEADER"]="${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run autoheader"
+S["AUTOMAKE"]="${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run automake-1.11"
+S["AUTOCONF"]="${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run autoconf"
+S["ACLOCAL"]="${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run aclocal-1.11"
 S["VERSION"]="2.7.2"
 S["PACKAGE"]="nut"
 S["CYGPATH_W"]="echo"

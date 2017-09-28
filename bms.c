@@ -82,7 +82,10 @@ void do_communication(int bmsfd)
                {
                     memset(buf, 0, sizeof(buf));
                     if(flag >= 10)
+                    {
                          sprintf(buf, SAN_WA, "10001100");
+                         flag = 0;
+                    }
                     else
                          sprintf(buf, SAN_WA, "00000100");
                }
@@ -131,6 +134,7 @@ void do_communication(int bmsfd)
                break;
           }
 
+          printf("%s\n", buf);
           printf(SENT, n);
           printf("+-------------------------------------------+\n");
 
