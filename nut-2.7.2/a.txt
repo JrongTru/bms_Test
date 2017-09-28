@@ -1,0 +1,114 @@
+Making all in include
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/include'
+NUT_VERSION: "2.7.2"
+test -f nut_version.h || cp _nut_version.h nut_version.h
+cmp -s _nut_version.h nut_version.h || cp _nut_version.h nut_version.h
+rm -f _nut_version.h
+make  all-am
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/include'
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/include'
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/include'
+Making all in common
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/common'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/common'
+Making all in clients
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/clients'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/clients'
+Making all in conf
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/conf'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/conf'
+Making all in data
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/data'
+Making all in html
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/data/html'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/data/html'
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/data'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/data'
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/data'
+Making all in tools
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/tools'
+Making all in .
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/tools'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/tools'
+Making all in nut-scanner
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/tools/nut-scanner'
+make  all-am
+make[3]: Entering directory '/home/tru/packages/nut-2.7.2/tools/nut-scanner'
+make[3]: Nothing to be done for 'all-am'.
+make[3]: Leaving directory '/home/tru/packages/nut-2.7.2/tools/nut-scanner'
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/tools/nut-scanner'
+Regenerating the SNMP helper files.
+Regenerating the USB helper files.
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/tools'
+Making all in docs
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/docs'
+Making all in man
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/docs/man'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/docs/man'
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/docs'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/docs'
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/docs'
+Making all in drivers
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/drivers'
+gcc -DHAVE_CONFIG_H -I. -I../include    -I../include      -g -O2 -Wall -Wsign-compare -MT santak_c6_20s.o -MD -MP -MF .deps/santak_c6_20s.Tpo -c -o santak_c6_20s.o santak_c6_20s.c
+mv -f .deps/santak_c6_20s.Tpo .deps/santak_c6_20s.Po
+/bin/bash ../libtool --tag=CC   --mode=link gcc -I../include      -g -O2 -Wall -Wsign-compare   -o santak_c6_20s santak_c6_20s.o ../common/libcommon.la ../common/libparseconf.la main.o dstate.o  serial.o -lpthread 
+libtool: link: gcc -I../include -g -O2 -Wall -Wsign-compare -o santak_c6_20s santak_c6_20s.o main.o dstate.o serial.o  ../common/.libs/libcommon.a ../common/.libs/libparseconf.a -lpthread
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/drivers'
+Making all in lib
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/lib'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/lib'
+Making all in scripts
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/scripts'
+Making all in augeas
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/scripts/augeas'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts/augeas'
+Making all in devd
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/scripts/devd'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts/devd'
+Making all in hotplug
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/scripts/hotplug'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts/hotplug'
+Making all in python
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/scripts/python'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts/python'
+Making all in systemd
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/scripts/systemd'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts/systemd'
+Making all in udev
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/scripts/udev'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts/udev'
+Making all in Solaris
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/scripts/Solaris'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts/Solaris'
+make[2]: Entering directory '/home/tru/packages/nut-2.7.2/scripts'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts'
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/scripts'
+Making all in server
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/server'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/server'
+Making all in tests
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2/tests'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2/tests'
+make[1]: Entering directory '/home/tru/packages/nut-2.7.2'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/home/tru/packages/nut-2.7.2'

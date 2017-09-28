@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/local/ups/sbin/upsmon -K >/dev/null 2>&1 && /usr/local/ups/sbin/upsdrvctl shutdown

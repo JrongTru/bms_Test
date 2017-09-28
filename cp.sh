@@ -6,4 +6,4 @@
 #########################################################################
 #!/bin/bash
 
-cp ./santak_c6_20ks.c ~/package/nut-2.7.2/drivers/
+cp ./santak_c6_20ks.c ~/package/nut-2.7.2/drivers/santak_c6_20ks.c

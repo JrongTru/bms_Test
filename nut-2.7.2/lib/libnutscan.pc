@@ -1,0 +1,10 @@
+prefix=/usr/local/ups
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libnutscan
+Description: Power devices discovery with Network UPS Tools
+Version: 2.7.2
+Libs: -L${libdir} -lnutscan
+Cflags: -I${includedir}
