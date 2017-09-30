@@ -28,18 +28,20 @@
 #define DRIVER_NAME	"santak_c6_20ks"/* modified */
 #define DRIVER_VERSION	"1.01" /* modified */
 
-#define santak_Debug 0  /* added */
+#define SANTAK_DEBUG 0  /* added */
 #define SERVER_IP "172.16.134.221"
 #define SERVER_PORT 23333
 #define CONFIRM_SIG "1"
 #define SHUT_SER "shutdown"
+#define SANTAK_SEND_Q6 "Q6\r"
+#define SANTAK_SEND_WA "WA\r"
+#define SANTAK_SEND_SHUT "S.2\r"
 
 /* driver description structure */
 upsdrv_info_t upsdrv_info = {
      DRIVER_NAME,
      DRIVER_VERSION,
-     "Tru\n" \
-          "Jrong",
+     "Tru Jrong",
      DRV_STABLE,
      { NULL }
 };
@@ -111,7 +113,7 @@ static int close_server()
           if(connect(ser_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)))
           {
                upslogx(LOG_INFO, "connect to socket failed![%d]", errno);
-#if santak_Debug
+#if SANTAK_DEBUG
                printf("WA connect to socket failed![%s]", strerror(errno));
 #endif
                ret = -1;
@@ -128,25 +130,31 @@ static int close_server()
           {
                ret = read(ser_fd, buf, sizeof(buf));
                if(ret <= 0)
+               {
                     continue;
+               }
                     
                if(memcmp(buf, CONFIRM_SIG, strlen(CONFIRM_SIG)))
+               {
                     continue;
+               }
 
                close(ser_fd);
                ser_fd = 0;
-#if santak_Debug
+#if SANTAK_DEBUG
                printf("Server exiting!\n");
 #endif
           }
 
-          ret = ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
+          ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_SHUT);
 
           usleep(200000);
           ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", SER_WAIT_SEC, SER_WAIT_USEC);
           if(buf[0] != '1')
+          {
                continue;
-#if santak_Debug
+          }
+#if SANTAK_DEBUG
           printf("%s\n", buf);
 #endif
           upslogx(LOG_INFO, "Server closed.");
@@ -171,9 +179,11 @@ static int shutdown_ups()
           if(ret > 0)
           {
                if(memcmp(buf, CONFIRM_SIG, 1))
+               {
                     continue;
+               }
           }
-#if santak_Debug
+#if SANTAK_DEBUG
           printf("%s\n", buf);
 #endif
           printf("Exiting!\n");
@@ -190,19 +200,23 @@ static void ups_sync(void)
      int	i, ret;
 
      for (i = 0; i < MAXTRIES; i++) {
-          ser_send_pace(upsfd, UPSDELAY, "Q6\r");/* modified */
+          ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_Q6);/* modified */
 
           ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
                     SER_WAIT_SEC, SER_WAIT_USEC);
 
-#if santak_Debug
+#if SANTAK_DEBUG
           if(ret > 0)
+          {
                printf("%s\n", buf);
+          }
 #endif 
 
           /* return once we get something that looks usable */
           if ((ret > 0) && (buf[0] == '('))
+          {
                return;
+          }
 
           usleep(250000);
      }
@@ -246,7 +260,7 @@ static int ups_on_line(void)
      int ret = 0;
 
      for (i = 0; i < MAXTRIES; i++) {
-          ser_send_pace(upsfd, UPSDELAY, "Q6\r");
+          ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_Q6);
 
           ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
                     SER_WAIT_SEC, SER_WAIT_USEC);
@@ -258,11 +272,13 @@ static int ups_on_line(void)
 
           sscanf(buf, "%*c%*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*d %*d %d %*d %*s %*s %*s", &sys_mode);
 
-#if santak_Debug
+#if SANTAK_DEBUG
           printf("system on mode: [%d]\n", sys_mode);
 #endif
           if(Line == sys_mode)
+          {
                return 1;	/* on line */
+          }
 
           return 0;	/*on battery */
 
@@ -295,10 +311,12 @@ void upsdrv_shutdown(void)
           close_server();
      }
      else
+     {
           upslogx(LOG_INFO, "Ups has been shutdown!");
+     }
 }
 
-static void Q6()                    /* added */
+static void send_Q6()                    /* added */
 {
      float R_in_volt, ups_in_Hz, R_out_volt, ups_out_Hz, out_current, p_batt_volt, n_batt_volt, ups_temp;
      int remain_time, cap_percentage, sys_mode, bat_test_status;
@@ -306,7 +324,7 @@ static void Q6()                    /* added */
 
      int ret = 0;
 
-     ret = ser_send_pace(upsfd, UPSDELAY, "Q6\r");
+     ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_Q6);
 
      if (ret < 1) {
           ser_comm_fail("ser_send_pace failed");
@@ -334,27 +352,44 @@ static void Q6()                    /* added */
 
      ser_comm_good();
 
-#if santak_Debug
+#if SANTAK_DEBUG
      write(STDOUT_FILENO, buf, strlen(buf));
      printf("\n");
 #endif
      /*"(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d 3 2 NULL NULL YO\r"*/
      sscanf(buf, "%*c%f %*f %*f %f %f %*f %*f %f %f %*f %*f %f %f %f %d %d %d %d %s %s %*s", &R_in_volt, &ups_in_Hz, &R_out_volt,  &ups_out_Hz, &out_current, &p_batt_volt, &n_batt_volt, &ups_temp, &remain_time, &cap_percentage, &sys_mode, &bat_test_status, fault_code, warn_code);
 
-#if santak_Debug
+#if SANTAK_DEBUG
      printf("%f %f %f %f %f %f %f %f %d %d %d %d %s %s.\n", R_in_volt, ups_in_Hz, R_out_volt, ups_out_Hz, out_current, p_batt_volt, n_batt_volt, ups_temp, remain_time, cap_percentage, sys_mode, bat_test_status, fault_code, warn_code);
 #endif
 
-     if(remain_time > 360)
-          dstate_setinfo("battery.remain.time", "%d", remain_time);
-     else
+     if(Fault == sys_mode)
+     {
+          dstate_setinfo("ups.work.mode", "%d", sys_mode);
+          dstate_setinfo("ups.fault.code", "%s", fault_code);
           close_server();
+          return;
+     }
+
+     if(remain_time > 360)
+     {
+          dstate_setinfo("battery.remain.time", "%d", remain_time);
+     }
+     else
+     {
+          status_set("LB");
+          close_server();
+          return;
+     }
 
      if(cap_percentage > 40)
           dstate_setinfo("battery.charge", "%d", cap_percentage);
      else
+     {
+          status_set("LB");
           close_server();
-
+          return;
+     }
 
      dstate_setinfo("ups.R_input.voltage", "%f", R_in_volt);
      dstate_setinfo("ups.in.Hz", "%f", ups_in_Hz);
@@ -364,6 +399,27 @@ static void Q6()                    /* added */
      dstate_setinfo("battery.positive.voltage", "%f", p_batt_volt);
      dstate_setinfo("battery.negative.voltage", "%f", n_batt_volt);
      dstate_setinfo("ups.temperature", "%f", ups_temp);
+
+     if(Line == sys_mode)
+     {
+          status_set("OL");
+     }
+     else if(Bypass == sys_mode)
+     {
+          if(R_in_volt < R_out_volt)
+          {
+               status_set("BOOST");
+          }
+          else
+          {
+               status_set("trim");
+          }
+     }
+     else if(Bat == sys_mode)
+     {
+          status_set("OB");
+     }
+
      dstate_setinfo("ups.work.mode", "%d", sys_mode);
      dstate_setinfo("battery.test.status", "%d", bat_test_status);
 
@@ -371,14 +427,14 @@ static void Q6()                    /* added */
 
 }
 
-static void WA()               /* added */
+static void send_WA()               /* added */
 {
      float R_out_power, total_power, R_out_ap_power, total_ap_power, out_current, out_load_percentage;
      char ups_status[64], buf[256]; /* modified */
 
      int ret = 0;
 
-     ret = ser_send_pace(upsfd, UPSDELAY, "WA\r");
+     ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_WA);
 
      if (ret < 1) {
           ser_comm_fail("ser_send_pace failed");
@@ -405,14 +461,14 @@ static void WA()               /* added */
      }
      ser_comm_good();
 
-#if santak_Debug
+#if SANTAK_DEBUG
      printf("%s\n", buf);
      printf("\n");
 #endif
      /* (254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r */
      sscanf(buf, "%*c%f %*f %*f %f %*f %*f %f %f %f %*f %*f %f %s", &R_out_power, &total_power, &R_out_ap_power, &total_ap_power, &out_current, &out_load_percentage, ups_status);
 
-#if santak_Debug
+#if SANTAK_DEBUG
      printf("%.2f %.2f %.2f %.2f %.2f %.2f %s.\n", R_out_power, total_power, R_out_ap_power, total_ap_power, out_current, out_load_percentage, ups_status);
 #endif
 
@@ -434,9 +490,9 @@ static void WA()               /* added */
 
 void upsdrv_updateinfo(void)        /* modified */
 {
-     Q6();
+     send_Q6();
      usleep(50000);
-     WA();
+     send_WA();
 
      status_init();
      status_commit();

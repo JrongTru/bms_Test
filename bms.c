@@ -23,6 +23,7 @@
 #define SAN_WA "(254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r"
 
 #define SAN_PATH "/dev/ttyUSB1"
+#define ONLINE_MODE 1
 
 #define WAITING "BMS is running!\n"
 #define GET_MSG "Get a msg: "
@@ -69,7 +70,9 @@ void do_communication(int bmsfd)
                     if(remain_t > 1 && percentage > 1)
                     {
                          sprintf(buf, SAN_Q6, remain_t, percentage);
+#if ONLINE_MODE
                          remain_t -= 10;
+#endif
                     }
                     else
                     {
@@ -89,7 +92,9 @@ void do_communication(int bmsfd)
                     else
                     {
                          sprintf(buf, SAN_WA, "00000100");
+#if ONLINE_MODE
                          ++flag;
+#endif
                     }
                }
                else if(!memcmp(buf, "(S", 2))
