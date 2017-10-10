@@ -23,7 +23,7 @@
 #define SAN_WA "(254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r"
 
 #define SAN_PATH "/dev/ttyUSB1"
-#define BATTERY_MODE 0
+#define BATTERY_MODE 1
 
 #define WAITING "BMS is running!\n"
 #define GET_MSG "Get a msg: "
