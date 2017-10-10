@@ -572,8 +572,8 @@ configure:6848: $? = 0
 configure:6848: result: yes
 configure:6848: checking for fcvtl
 configure:6848: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccsuSBQz.o: In function `main':
-/home/tru/package/bms_Test/nut-2.7.2/conftest.c:67: undefined reference to `fcvtl'
+/tmp/cc6cKNns.o: In function `main':
+/home/tru/test_project/bms_Test/nut-2.7.2/conftest.c:67: undefined reference to `fcvtl'
 collect2: error: ld returned 1 exit status
 configure:6848: $? = 1
 configure: failed program was:
@@ -666,8 +666,8 @@ configure:6872: $? = 0
 configure:6872: result: yes
 configure:6872: checking for getpassphrase
 configure:6872: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccxgn7RB.o: In function `main':
-/home/tru/package/bms_Test/nut-2.7.2/conftest.c:71: undefined reference to `getpassphrase'
+/tmp/ccIqvd4I.o: In function `main':
+/home/tru/test_project/bms_Test/nut-2.7.2/conftest.c:71: undefined reference to `getpassphrase'
 collect2: error: ld returned 1 exit status
 configure:6872: $? = 1
 configure: failed program was:
@@ -1120,8 +1120,8 @@ configure:7627: $? = 0
 configure:7627: result: yes
 configure:7640: checking for library containing pthread_create
 configure:7671: gcc -o conftest -g -O2 -Wall -Wsign-compare   conftest.c  >&5
-/tmp/ccrahcuE.o: In function `main':
-/home/tru/package/bms_Test/nut-2.7.2/conftest.c:67: undefined reference to `pthread_create'
+/tmp/ccbjy4Pw.o: In function `main':
+/home/tru/test_project/bms_Test/nut-2.7.2/conftest.c:67: undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
 configure:7671: $? = 1
 configure: failed program was:
@@ -1384,7 +1384,7 @@ configure: failed program was:
 configure:7912: result: no
 configure:7927: checking for init_snmp
 configure:7927: gcc -o conftest    conftest.c  >&5
-/tmp/ccgjSVaE.o: In function `main':
+/tmp/ccxLSqRG.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `init_snmp'
 collect2: error: ld returned 1 exit status
 configure:7927: $? = 1
@@ -1796,7 +1796,7 @@ configure: failed program was:
 configure:8246: result: no
 configure:8261: checking for ne_xml_dispatch_request
 configure:8261: gcc -o conftest    conftest.c  >&5
-/tmp/cc8cYpTP.o: In function `main':
+/tmp/ccb9LqoP.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `ne_xml_dispatch_request'
 collect2: error: ld returned 1 exit status
 configure:8261: $? = 1
@@ -2000,7 +2000,7 @@ configure: failed program was:
 configure:8357: result: no
 configure:8372: checking for pm_connect
 configure:8372: gcc -o conftest    conftest.c  >&5
-/tmp/cckMvyrV.o: In function `main':
+/tmp/ccRUCLQT.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `pm_connect'
 collect2: error: ld returned 1 exit status
 configure:8372: $? = 1
@@ -2208,7 +2208,7 @@ configure: failed program was:
 configure:8465: result: no
 configure:8480: checking for avahi_free
 configure:8480: gcc -o conftest    conftest.c  >&5
-/tmp/cckkBx4Z.o: In function `main':
+/tmp/cc1NmthZ.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `avahi_free'
 collect2: error: ld returned 1 exit status
 configure:8480: $? = 1
@@ -3585,8 +3585,8 @@ configure: failed program was:
 configure:10481: result: no
 configure:10494: checking for library containing yp_get_default_domain
 configure:10525: gcc -o conftest -g -O2 -Wall -Wsign-compare   conftest.c  >&5
-/tmp/ccyua96t.o: In function `main':
-/home/tru/package/bms_Test/nut-2.7.2/conftest.c:69: undefined reference to `yp_get_default_domain'
+/tmp/ccDfMyhv.o: In function `main':
+/home/tru/test_project/bms_Test/nut-2.7.2/conftest.c:69: undefined reference to `yp_get_default_domain'
 collect2: error: ld returned 1 exit status
 configure:10525: $? = 1
 configure: failed program was:
@@ -3821,107 +3821,12 @@ configure:10704: checking for libltdl ldflags
 configure:10721: result: 
 configure:10726: checking for ltdl.h
 configure:10726: gcc -c -g -O2 -Wall -Wsign-compare  conftest.c >&5
-conftest.c:92:18: fatal error: ltdl.h: No such file or directory
-compilation terminated.
-configure:10726: $? = 1
-configure: failed program was:
-| /* confdefs.h */
-| #define PACKAGE_NAME "nut"
-| #define PACKAGE_TARNAME "nut"
-| #define PACKAGE_VERSION "2.7.2"
-| #define PACKAGE_STRING "nut 2.7.2"
-| #define PACKAGE_BUGREPORT ""
-| #define PACKAGE_URL ""
-| #define PACKAGE "nut"
-| #define VERSION "2.7.2"
-| #define STDC_HEADERS 1
-| #define HAVE_SYS_TYPES_H 1
-| #define HAVE_SYS_STAT_H 1
-| #define HAVE_STDLIB_H 1
-| #define HAVE_STRING_H 1
-| #define HAVE_MEMORY_H 1
-| #define HAVE_STRINGS_H 1
-| #define HAVE_INTTYPES_H 1
-| #define HAVE_STDINT_H 1
-| #define HAVE_UNISTD_H 1
-| #define __EXTENSIONS__ 1
-| #define _ALL_SOURCE 1
-| #define _GNU_SOURCE 1
-| #define _POSIX_PTHREAD_SEMANTICS 1
-| #define _TANDEM_SOURCE 1
-| #define TREE_VERSION "2.7"
-| #define NUT_NETVERSION "1.2"
-| #define FLEXIBLE_ARRAY_MEMBER /**/
-| #define HAVE_C_VARARRAYS 1
-| #define HAVE_FLOCK 1
-| #define HAVE_LOCKF 1
-| #define HAVE_FCVT 1
-| #define HAVE_CFSETISPEED 1
-| #define HAVE_TCSENDBREAK 1
-| #define HAVE_SETEUID 1
-| #define HAVE_SETSID 1
-| #define HAVE_ON_EXIT 1
-| #define HAVE_STRPTIME 1
-| #define HAVE_SETLOGMASK 1
-| #define HAVE_DECL_LOG_UPTO 1
-| #define HAVE_VSNPRINTF 1
-| #define HAVE_SNPRINTF 1
-| #define HAVE_SETENV 1
-| #define HAVE_STRERROR 1
-| #define HAVE_ATEXIT 1
-| #define HAVE_DECL_OPTIND 1
-| #define HAVE_GETOPT_H 1
-| #define NEED_GETOPT_H 1
-| #define HAVE_GETOPT_LONG 1
-| #define HAVE_DECL_UU_LOCK 0
-| #define HAVE_DECL___FUNC__ 1
-| #define TIME_WITH_SYS_TIME 1
-| #define HAVE_STDARG_H 1
-| #define HAVE_SYS_TERMIOS_H 1
-| #define HAVE_SYS_TIME_H 1
-| #define HAVE_PTHREAD 1
-| #define WITH_SERIAL 1
-| /* end confdefs.h.  */
-| #include <stdio.h>
-| #ifdef HAVE_SYS_TYPES_H
-| # include <sys/types.h>
-| #endif
-| #ifdef HAVE_SYS_STAT_H
-| # include <sys/stat.h>
-| #endif
-| #ifdef STDC_HEADERS
-| # include <stdlib.h>
-| # include <stddef.h>
-| #else
-| # ifdef HAVE_STDLIB_H
-| #  include <stdlib.h>
-| # endif
-| #endif
-| #ifdef HAVE_STRING_H
-| # if !defined STDC_HEADERS && defined HAVE_MEMORY_H
-| #  include <memory.h>
-| # endif
-| # include <string.h>
-| #endif
-| #ifdef HAVE_STRINGS_H
-| # include <strings.h>
-| #endif
-| #ifdef HAVE_INTTYPES_H
-| # include <inttypes.h>
-| #endif
-| #ifdef HAVE_STDINT_H
-| # include <stdint.h>
-| #endif
-| #ifdef HAVE_UNISTD_H
-| # include <unistd.h>
-| #endif
-| 
-| #include <ltdl.h>
-configure:10726: result: no
+configure:10726: $? = 0
+configure:10726: result: yes
 configure:10739: checking for library containing lt_dlinit
 configure:10770: gcc -o conftest -g -O2 -Wall -Wsign-compare   conftest.c  >&5
-/tmp/ccAlAvhC.o: In function `main':
-/home/tru/package/bms_Test/nut-2.7.2/conftest.c:69: undefined reference to `lt_dlinit'
+/tmp/ccWEoyVt.o: In function `main':
+/home/tru/test_project/bms_Test/nut-2.7.2/conftest.c:70: undefined reference to `lt_dlinit'
 collect2: error: ld returned 1 exit status
 configure:10770: $? = 1
 configure: failed program was:
@@ -3981,6 +3886,7 @@ configure: failed program was:
 | #define HAVE_SYS_TIME_H 1
 | #define HAVE_PTHREAD 1
 | #define WITH_SERIAL 1
+| #define HAVE_LTDL_H 1
 | /* end confdefs.h.  */
 | 
 | /* Override any GCC internal prototype to avoid an error.
@@ -3998,85 +3904,10 @@ configure: failed program was:
 |   return 0;
 | }
 configure:10770: gcc -o conftest -g -O2 -Wall -Wsign-compare   conftest.c -lltdl   >&5
-/usr/bin/ld: cannot find -lltdl
-collect2: error: ld returned 1 exit status
-configure:10770: $? = 1
-configure: failed program was:
-| /* confdefs.h */
-| #define PACKAGE_NAME "nut"
-| #define PACKAGE_TARNAME "nut"
-| #define PACKAGE_VERSION "2.7.2"
-| #define PACKAGE_STRING "nut 2.7.2"
-| #define PACKAGE_BUGREPORT ""
-| #define PACKAGE_URL ""
-| #define PACKAGE "nut"
-| #define VERSION "2.7.2"
-| #define STDC_HEADERS 1
-| #define HAVE_SYS_TYPES_H 1
-| #define HAVE_SYS_STAT_H 1
-| #define HAVE_STDLIB_H 1
-| #define HAVE_STRING_H 1
-| #define HAVE_MEMORY_H 1
-| #define HAVE_STRINGS_H 1
-| #define HAVE_INTTYPES_H 1
-| #define HAVE_STDINT_H 1
-| #define HAVE_UNISTD_H 1
-| #define __EXTENSIONS__ 1
-| #define _ALL_SOURCE 1
-| #define _GNU_SOURCE 1
-| #define _POSIX_PTHREAD_SEMANTICS 1
-| #define _TANDEM_SOURCE 1
-| #define TREE_VERSION "2.7"
-| #define NUT_NETVERSION "1.2"
-| #define FLEXIBLE_ARRAY_MEMBER /**/
-| #define HAVE_C_VARARRAYS 1
-| #define HAVE_FLOCK 1
-| #define HAVE_LOCKF 1
-| #define HAVE_FCVT 1
-| #define HAVE_CFSETISPEED 1
-| #define HAVE_TCSENDBREAK 1
-| #define HAVE_SETEUID 1
-| #define HAVE_SETSID 1
-| #define HAVE_ON_EXIT 1
-| #define HAVE_STRPTIME 1
-| #define HAVE_SETLOGMASK 1
-| #define HAVE_DECL_LOG_UPTO 1
-| #define HAVE_VSNPRINTF 1
-| #define HAVE_SNPRINTF 1
-| #define HAVE_SETENV 1
-| #define HAVE_STRERROR 1
-| #define HAVE_ATEXIT 1
-| #define HAVE_DECL_OPTIND 1
-| #define HAVE_GETOPT_H 1
-| #define NEED_GETOPT_H 1
-| #define HAVE_GETOPT_LONG 1
-| #define HAVE_DECL_UU_LOCK 0
-| #define HAVE_DECL___FUNC__ 1
-| #define TIME_WITH_SYS_TIME 1
-| #define HAVE_STDARG_H 1
-| #define HAVE_SYS_TERMIOS_H 1
-| #define HAVE_SYS_TIME_H 1
-| #define HAVE_PTHREAD 1
-| #define WITH_SERIAL 1
-| /* end confdefs.h.  */
-| 
-| /* Override any GCC internal prototype to avoid an error.
-|    Use char because int might match the return type of a GCC
-|    builtin and then its argument prototype would still apply.  */
-| #ifdef __cplusplus
-| extern "C"
-| #endif
-| char lt_dlinit ();
-| int
-| main ()
-| {
-| return lt_dlinit ();
-|   ;
-|   return 0;
-| }
-configure:10787: result: no
+configure:10770: $? = 0
+configure:10787: result: -lltdl
 configure:10820: checking whether to enable libltdl (Libtool dlopen abstraction) support
-configure:10822: result: no 
+configure:10822: result: yes 
 configure:11051: checking whether to build CGI programs
 configure:11053: result: no 
 configure:11093: checking for asciidoc
@@ -4217,7 +4048,7 @@ configure:18702: checking how to run the C++ preprocessor
 configure:18729: g++ -E  conftest.cpp
 configure:18729: $? = 0
 configure:18743: g++ -E  conftest.cpp
-conftest.cpp:60:28: fatal error: ac_nonexistent.h: No such file or directory
+conftest.cpp:63:28: fatal error: ac_nonexistent.h: No such file or directory
 compilation terminated.
 configure:18743: $? = 1
 configure: failed program was:
@@ -4277,6 +4108,9 @@ configure: failed program was:
 | #define HAVE_SYS_TIME_H 1
 | #define HAVE_PTHREAD 1
 | #define WITH_SERIAL 1
+| #define HAVE_LTDL_H 1
+| #define HAVE_LIBLTDL 1
+| #define WITH_LIBLTDL 1
 | #define HAVE_DLFCN_H 1
 | #define LT_OBJDIR ".libs/"
 | /* end confdefs.h.  */
@@ -4285,7 +4119,7 @@ configure:18768: result: g++ -E
 configure:18788: g++ -E  conftest.cpp
 configure:18788: $? = 0
 configure:18802: g++ -E  conftest.cpp
-conftest.cpp:60:28: fatal error: ac_nonexistent.h: No such file or directory
+conftest.cpp:63:28: fatal error: ac_nonexistent.h: No such file or directory
 compilation terminated.
 configure:18802: $? = 1
 configure: failed program was:
@@ -4345,6 +4179,9 @@ configure: failed program was:
 | #define HAVE_SYS_TIME_H 1
 | #define HAVE_PTHREAD 1
 | #define WITH_SERIAL 1
+| #define HAVE_LTDL_H 1
+| #define HAVE_LIBLTDL 1
+| #define WITH_LIBLTDL 1
 | #define HAVE_DLFCN_H 1
 | #define LT_OBJDIR ".libs/"
 | /* end confdefs.h.  */
@@ -4443,65 +4280,65 @@ generated by GNU Autoconf 2.69.  Invocation command line was
 
 on Trus
 
-config.status:1362: creating clients/Makefile
-config.status:1362: creating common/Makefile
-config.status:1362: creating conf/Makefile
-config.status:1362: creating conf/upsmon.conf.sample
-config.status:1362: creating conf/upssched.conf.sample
-config.status:1362: creating data/html/header.html
-config.status:1362: creating data/html/Makefile
-config.status:1362: creating data/Makefile
-config.status:1362: creating data/driver.list
-config.status:1362: creating docs/Makefile
-config.status:1362: creating docs/man/Makefile
-config.status:1362: creating drivers/Makefile
-config.status:1362: creating include/Makefile
-config.status:1362: creating lib/libupsclient-config
-config.status:1362: creating lib/libupsclient.pc
-config.status:1362: creating lib/libnutclient.pc
-config.status:1362: creating lib/libnutscan.pc
-config.status:1362: creating lib/Makefile
-config.status:1362: creating scripts/augeas/Makefile
-config.status:1362: creating scripts/augeas/nutnutconf.aug
-config.status:1362: creating scripts/augeas/nutupsconf.aug
-config.status:1362: creating scripts/augeas/nutupsdconf.aug
-config.status:1362: creating scripts/augeas/nutupsdusers.aug
-config.status:1362: creating scripts/augeas/nutupsmonconf.aug
-config.status:1362: creating scripts/augeas/nutupsschedconf.aug
-config.status:1362: creating scripts/augeas/nuthostsconf.aug
-config.status:1362: creating scripts/augeas/nutupssetconf.aug
-config.status:1362: creating scripts/avahi/nut.service
-config.status:1362: creating scripts/devd/Makefile
-config.status:1362: creating scripts/devd/nut-usb.conf
-config.status:1362: creating scripts/hotplug/Makefile
-config.status:1362: creating scripts/hotplug/libhidups
-config.status:1362: creating scripts/HP-UX/nut.psf
-config.status:1362: creating scripts/HP-UX/postinstall
-config.status:1362: creating scripts/python/Makefile
-config.status:1362: creating scripts/systemd/Makefile
-config.status:1362: creating scripts/systemd/nut-driver.service
-config.status:1362: creating scripts/systemd/nut-monitor.service
-config.status:1362: creating scripts/systemd/nut-server.service
-config.status:1362: creating scripts/systemd/nutshutdown
-config.status:1362: creating scripts/Solaris/Makefile
-config.status:1362: creating scripts/Solaris/pkginfo
-config.status:1362: creating scripts/Solaris/postinstall
-config.status:1362: creating scripts/Solaris/preremove
-config.status:1362: creating scripts/Solaris/nut
-config.status:1362: creating scripts/udev/Makefile
-config.status:1362: creating scripts/udev/nut-ipmipsu.rules
-config.status:1362: creating scripts/udev/nut-usbups.rules
-config.status:1362: creating scripts/ufw/nut.ufw.profile
-config.status:1362: creating scripts/Makefile
-config.status:1362: creating server/Makefile
-config.status:1362: creating tools/Makefile
-config.status:1362: creating tools/nut-scanner/Makefile
-config.status:1362: creating tests/Makefile
-config.status:1362: creating Makefile
-config.status:1362: creating include/config.h
-config.status:1543: include/config.h is unchanged
-config.status:1591: executing depfiles commands
-config.status:1591: executing libtool commands
+config.status:1365: creating clients/Makefile
+config.status:1365: creating common/Makefile
+config.status:1365: creating conf/Makefile
+config.status:1365: creating conf/upsmon.conf.sample
+config.status:1365: creating conf/upssched.conf.sample
+config.status:1365: creating data/html/header.html
+config.status:1365: creating data/html/Makefile
+config.status:1365: creating data/Makefile
+config.status:1365: creating data/driver.list
+config.status:1365: creating docs/Makefile
+config.status:1365: creating docs/man/Makefile
+config.status:1365: creating drivers/Makefile
+config.status:1365: creating include/Makefile
+config.status:1365: creating lib/libupsclient-config
+config.status:1365: creating lib/libupsclient.pc
+config.status:1365: creating lib/libnutclient.pc
+config.status:1365: creating lib/libnutscan.pc
+config.status:1365: creating lib/Makefile
+config.status:1365: creating scripts/augeas/Makefile
+config.status:1365: creating scripts/augeas/nutnutconf.aug
+config.status:1365: creating scripts/augeas/nutupsconf.aug
+config.status:1365: creating scripts/augeas/nutupsdconf.aug
+config.status:1365: creating scripts/augeas/nutupsdusers.aug
+config.status:1365: creating scripts/augeas/nutupsmonconf.aug
+config.status:1365: creating scripts/augeas/nutupsschedconf.aug
+config.status:1365: creating scripts/augeas/nuthostsconf.aug
+config.status:1365: creating scripts/augeas/nutupssetconf.aug
+config.status:1365: creating scripts/avahi/nut.service
+config.status:1365: creating scripts/devd/Makefile
+config.status:1365: creating scripts/devd/nut-usb.conf
+config.status:1365: creating scripts/hotplug/Makefile
+config.status:1365: creating scripts/hotplug/libhidups
+config.status:1365: creating scripts/HP-UX/nut.psf
+config.status:1365: creating scripts/HP-UX/postinstall
+config.status:1365: creating scripts/python/Makefile
+config.status:1365: creating scripts/systemd/Makefile
+config.status:1365: creating scripts/systemd/nut-driver.service
+config.status:1365: creating scripts/systemd/nut-monitor.service
+config.status:1365: creating scripts/systemd/nut-server.service
+config.status:1365: creating scripts/systemd/nutshutdown
+config.status:1365: creating scripts/Solaris/Makefile
+config.status:1365: creating scripts/Solaris/pkginfo
+config.status:1365: creating scripts/Solaris/postinstall
+config.status:1365: creating scripts/Solaris/preremove
+config.status:1365: creating scripts/Solaris/nut
+config.status:1365: creating scripts/udev/Makefile
+config.status:1365: creating scripts/udev/nut-ipmipsu.rules
+config.status:1365: creating scripts/udev/nut-usbups.rules
+config.status:1365: creating scripts/ufw/nut.ufw.profile
+config.status:1365: creating scripts/Makefile
+config.status:1365: creating server/Makefile
+config.status:1365: creating tools/Makefile
+config.status:1365: creating tools/nut-scanner/Makefile
+config.status:1365: creating tests/Makefile
+config.status:1365: creating Makefile
+config.status:1365: creating include/config.h
+config.status:1546: include/config.h is unchanged
+config.status:1594: executing depfiles commands
+config.status:1594: executing libtool commands
 
 ## ---------------- ##
 ## Cache variables. ##
@@ -4584,7 +4421,7 @@ ac_cv_header_getopt_h=yes
 ac_cv_header_inttypes_h=yes
 ac_cv_header_ipmi_monitoring_h=no
 ac_cv_header_libpowerman_h=no
-ac_cv_header_ltdl_h=no
+ac_cv_header_ltdl_h=yes
 ac_cv_header_memory_h=yes
 ac_cv_header_minix_config_h=no
 ac_cv_header_ne_xmlreq_h=no
@@ -4639,7 +4476,7 @@ ac_cv_search_ipmi_monitoring_init=no
 ac_cv_search_ipmi_monitoring_sensor_read_record_id=no
 ac_cv_search_ipmi_sdr_cache_ctx_destroy=no
 ac_cv_search_ipmi_sdr_ctx_destroy=no
-ac_cv_search_lt_dlinit=no
+ac_cv_search_lt_dlinit=-lltdl
 ac_cv_search_pthread_create=-lpthread
 ac_cv_search_yp_get_default_domain=-lnsl
 ac_cv_target=x86_64-unknown-linux-gnu
@@ -4688,7 +4525,7 @@ lt_cv_to_tool_file_cmd=func_convert_file_noop
 ## ----------------- ##
 
 A2X='none'
-ACLOCAL='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run aclocal-1.11'
+ACLOCAL='${SHELL} /home/tru/test_project/bms_Test/nut-2.7.2/missing --run aclocal-1.11'
 AMDEPBACKSLASH='\'
 AMDEP_FALSE='#'
 AMDEP_TRUE=''
@@ -4696,9 +4533,9 @@ AMTAR='$${TAR-tar}'
 AR='/usr/bin/ar'
 ASCIIDOC='none'
 ASPELL='/usr/bin/aspell'
-AUTOCONF='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run autoconf'
-AUTOHEADER='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run autoheader'
-AUTOMAKE='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run automake-1.11'
+AUTOCONF='${SHELL} /home/tru/test_project/bms_Test/nut-2.7.2/missing --run autoconf'
+AUTOHEADER='${SHELL} /home/tru/test_project/bms_Test/nut-2.7.2/missing --run autoheader'
+AUTOMAKE='${SHELL} /home/tru/test_project/bms_Test/nut-2.7.2/missing --run automake-1.11'
 AWK='mawk'
 BINDIR='/usr/local/ups/bin'
 CC='gcc'
@@ -4753,7 +4590,7 @@ LIBGD_LDFLAGS=''
 LIBIPMI_CFLAGS=''
 LIBIPMI_LIBS=''
 LIBLTDL_CFLAGS=''
-LIBLTDL_LIBS=''
+LIBLTDL_LIBS='-lltdl '
 LIBNEON_CFLAGS=''
 LIBNEON_LIBS=''
 LIBNETSNMP_CFLAGS=''
@@ -4775,7 +4612,7 @@ LTLIBOBJS=''
 MAINT='#'
 MAINTAINER_MODE_FALSE=''
 MAINTAINER_MODE_TRUE='#'
-MAKEINFO='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/missing --run makeinfo'
+MAKEINFO='${SHELL} /home/tru/test_project/bms_Test/nut-2.7.2/missing --run makeinfo'
 MANIFEST_TOOL=':'
 MANUALUPDATE_FALSE=''
 MANUALUPDATE_TRUE='#'
@@ -4833,8 +4670,8 @@ WITH_HOTPLUG_FALSE=''
 WITH_HOTPLUG_TRUE='#'
 WITH_IPMI_FALSE=''
 WITH_IPMI_TRUE='#'
-WITH_LIBLTDL_FALSE=''
-WITH_LIBLTDL_TRUE='#'
+WITH_LIBLTDL_FALSE='#'
+WITH_LIBLTDL_TRUE=''
 WITH_LIBPOWERMAN_FALSE=''
 WITH_LIBPOWERMAN_TRUE='#'
 WITH_MACOSX_FALSE=''
@@ -4900,7 +4737,7 @@ hotplugdir=''
 htmldir='${prefix}/html'
 includedir='${prefix}/include'
 infodir='${datarootdir}/info'
-install_sh='${SHELL} /home/tru/package/bms_Test/nut-2.7.2/install-sh'
+install_sh='${SHELL} /home/tru/test_project/bms_Test/nut-2.7.2/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localedir='${datarootdir}/locale'
@@ -4985,6 +4822,9 @@ udevdir='/lib/udev'
 #define HAVE_SYS_TIME_H 1
 #define HAVE_PTHREAD 1
 #define WITH_SERIAL 1
+#define HAVE_LTDL_H 1
+#define HAVE_LIBLTDL 1
+#define WITH_LIBLTDL 1
 #define HAVE_DLFCN_H 1
 #define LT_OBJDIR ".libs/"
 #define STATEPATH "/var/state/ups"

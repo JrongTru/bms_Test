@@ -124,7 +124,7 @@
 /* #undef HAVE_LIBGD */
 
 /* Define to enable libltdl support */
-/* #undef HAVE_LIBLTDL */
+#define HAVE_LIBLTDL 1
 
 /* Define to 1 if you have the <libpowerman.h> header file. */
 /* #undef HAVE_LIBPOWERMAN_H */
@@ -139,7 +139,7 @@
 /* #undef HAVE_LONG_LONG_INT */
 
 /* Define to 1 if you have the <ltdl.h> header file. */
-/* #undef HAVE_LTDL_H */
+#define HAVE_LTDL_H 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
@@ -378,7 +378,7 @@
 /* #undef WITH_IPMI */
 
 /* Define to enable libltdl (Libtool dlopen abstraction) support */
-/* #undef WITH_LIBLTDL */
+#define WITH_LIBLTDL 1
 
 /* Define to enable Powerman PDU support */
 /* #undef WITH_LIBPOWERMAN */
