@@ -663,6 +663,8 @@ static void Santak_send_WA()               /* added */
 
      int i = 0;
 
+     dstate_setinfo(santak_info_WA->ups_status.key, "%s", santak_info_WA->ups_status.value);
+
      for(i = 0; i < STATUS_CODE_LEN; ++i)
      {
           if('1' == santak_info_WA->ups_status.value[i])
