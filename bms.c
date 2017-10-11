@@ -18,12 +18,12 @@
 #include <sys/time.h>
 #include <ctype.h>
 
-#define SAN_Q6 "(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d 42 00000000 00000000 YO\r"
+#define SAN_Q6 "(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d %d2 00000000 00000000 YO\r"
 
 #define SAN_WA "(254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r"
 
 #define SAN_PATH "/dev/ttyUSB1"
-#define BATTERY_MODE 1
+#define BATTERY_MODE 0
 
 #define WAITING "BMS is running!\n"
 #define GET_MSG "Get a msg: "
@@ -54,6 +54,11 @@ void do_communication(int bmsfd)
      int flag = 0;
      int remain_t = 450;
      int percentage = 60;
+     int sys_mode = 3;
+     if(BATTERY_MODE)
+     {
+          sys_mode = 4;
+     }
      do
      {
           write(STDOUT_FILENO, WAITING, strlen(WAITING));
@@ -69,9 +74,9 @@ void do_communication(int bmsfd)
                     memset(buf, 0, sizeof(buf));
                     if(remain_t > 1 && percentage > 1)
                     {
-                         sprintf(buf, SAN_Q6, remain_t, percentage);
+                         sprintf(buf, SAN_Q6, remain_t, percentage, sys_mode);
 #if BATTERY_MODE
-                         remain_t -= 5;
+                         remain_t -= 3;
 #endif
                     }
                     else
