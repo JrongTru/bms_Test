@@ -29,8 +29,8 @@
 #define DRIVER_VERSION	"1.01" /* modified */
 
 /*information of the test server*/
-#define SANTAK_DEBUG 0  /* turn on debug print */
-#define SERVER_IP "172.16.134.221"
+#define SANTAK_DEBUG 1  /* turn on debug print */
+#define SERVER_IP "172.16.134.222"
 #define SERVER_PORT 23333
 
 /*custom signal*/
@@ -41,7 +41,8 @@
 #define SANTAK_SEND_Q6 "Q6\r"
 #define SANTAK_SEND_WA "WA\r"
 #define SANTAK_SEND_SHUT "S.2\r"
-#define TRIPLE_PHASE 0
+
+#define STATUS_CODE_LEN 8
 #define DATA_BUF_SZ 64
 #define MAX_BUF_SZ 256
 
@@ -63,8 +64,6 @@ upsdrv_info_t upsdrv_info = {
 
 static enum Mode{
      POWERON = 0, STANDLY, BYPASS, LINE, BAT, BATTEST, FAULT, CONVERTER, HE, SHUTDOWN, };
-static enum BufType{
-     PROTO_Q6 = 0, PROTO_WA,};
 
 typedef struct santak_state{
      char key[DATA_BUF_SZ];
@@ -89,8 +88,7 @@ typedef struct proto_Q6_info{
      santak_state_t ups_temp;
      santak_state_t remain_time;
      santak_state_t cap_percentage;
-     santak_state_t sys_mode;
-     santak_state_t bat_test_status;
+     santak_state_t sys_mode_n_bat_test_status;
      santak_state_t fault_code;
      santak_state_t warn_code;
      santak_state_t rear_data;
@@ -156,7 +154,8 @@ static void Santak_init_buffer()
      /* initialize the buffer for getting data responsed by Q6 protocol */
      santak_info_Q6 = (proto_Q6_info_t *)malloc(sizeof(proto_Q6_info_t));
      memset(santak_info_Q6, 0, sizeof(proto_Q6_info_t));
-     strcpy(santak_info_Q6->sys_mode.key, "ups.work.mode");
+
+     strcpy(santak_info_Q6->sys_mode_n_bat_test_status.key, "sys.mode.and.battery.status");
      strcpy(santak_info_Q6->fault_code.key, "ups.fault.code");
      strcpy(santak_info_Q6->warn_code.key, "ups.warn.code");
 
@@ -166,7 +165,7 @@ static void Santak_init_buffer()
      strcpy(santak_info_Q6->R_in_volt.key, "ups.R.input.voltage");
      strcpy(santak_info_Q6->S_in_volt.key, "ups.S.input.voltage");
      strcpy(santak_info_Q6->T_in_volt.key, "ups.T.input.voltage");
-     
+
      strcpy(santak_info_Q6->R_out_volt.key, "ups.R.output.voltage");
      strcpy(santak_info_Q6->S_out_volt.key, "ups.R.output.voltage");
      strcpy(santak_info_Q6->T_out_volt.key, "ups.R.output.voltage");
@@ -182,12 +181,13 @@ static void Santak_init_buffer()
      strcpy(santak_info_Q6->n_batt_volt.key, "battery.negative.voltage");
 
      strcpy(santak_info_Q6->ups_temp.key, "ups.temperature");
-     strcpy(santak_info_Q6->bat_test_status.key, "battery.test.status");
+     /*strcpy(santak_info_Q6->bat_test_status.key, "battery.test.status");*/
      strcpy(santak_info_Q6->rear_data.key, "protocol.rear.data");
 
      /* initialize the buffer for getting data responsed by WA protocol */
      santak_info_WA = (proto_WA_info_t *)malloc(sizeof(proto_WA_info_t));
      memset(santak_info_WA, 0, sizeof(proto_WA_info_t));
+
      strcpy(santak_info_WA->R_out_power.key, "ups.R.output.power");
      strcpy(santak_info_WA->S_out_power.key, "ups.S.output.power");
      strcpy(santak_info_WA->T_out_power.key, "ups.T.output.power");
@@ -220,7 +220,7 @@ static int Santak_get_info(char * in_data, void * data_buf, int * out_len)
      {
           unsigned long j = 0;
 
-          while(*tmp!=' ')
+          while(*tmp!=' ' && *tmp!='\t')
           {
                if(!*tmp)
                {
@@ -246,7 +246,7 @@ static void print_data(void *data, int data_len)
 {
      int i = 0;
      unsigned long offset = sizeof(santak_state_t);
-     
+
      for(i = 0; i <= data_len; ++i)
      {
           printf("%s: %s\n", (char *)((unsigned long)data+offset*i), (char *)((unsigned long)data+offset*i+DATA_BUF_SZ));
@@ -294,7 +294,7 @@ static int close_server()
                {
                     continue;
                }
-                    
+
                if(memcmp(buf, CONFIRM_SIG, strlen(CONFIRM_SIG)))
                {
                     continue;
@@ -333,7 +333,7 @@ static int shutdown_ups()
      int ret = 0;
      for(i = 0; i < MAXTRIES; ++i)
      {
-          ret = ser_send_pace(upsfd, UPSDELAY, "(S.2\r");
+          ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_SHUT);
 
           usleep(200000);
           ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", SER_WAIT_SEC, SER_WAIT_USEC);
@@ -346,8 +346,8 @@ static int shutdown_ups()
           }
 #if SANTAK_DEBUG
           printf("%s\n", buf);
-#endif
           printf("Exiting!\n");
+#endif
           sleep(1);
           return 0;
      }
@@ -396,12 +396,12 @@ void upsdrv_initinfo(void)
      ser_fd = socket(AF_INET, SOCK_STREAM, 0);
      if(ser_fd < 0)
           fatalx(EXIT_SUCCESS, "Create fd to server failed! [%d]", errno);
-#endif
 
      memset(&serv_addr, 0, sizeof(serv_addr));
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_port = htons(SERVER_PORT);
      inet_pton(AF_INET, SERVER_IP, &serv_addr.sin_addr.s_addr);
+#endif
 
      printf("Detected %s %s on %s\n", dstate_getinfo("ups.mfr"), 
                dstate_getinfo("ups.model"), device_path);
@@ -437,11 +437,12 @@ static int ups_on_line(void)
                upslogx(LOG_WARNING, "get information from buffer error!");
                continue;
           }
-          
-          sys_mode = atoi(santak_info_Q6->sys_mode.value);
+
+          santak_info_Q6->sys_mode_n_bat_test_status.value[1] = '\0';
+          sys_mode = atoi(santak_info_Q6->sys_mode_n_bat_test_status.value);
 
 #if SANTAK_DEBUG
-          printf("system on mode: [%d]\n", sys_mode);
+          printf("\nsystem on mode: [%d]\n", sys_mode);
 #endif
           if(LINE == sys_mode)
           {
@@ -460,24 +461,23 @@ static int ups_on_line(void)
 
 void upsdrv_shutdown(void)
 {
-#if 0
-     printf("The UPS will shut down in 12s.\n");
-
-     if (ups_on_line())
-          printf("The UPS will restart in about one minute.\n");
-     else
-          printf("The UPS will restart when power returns.\n");
-#endif
-     close_server();
+     /*close_server();*/
+     int ret = 0;
 
      if(ups_on_line() && (atoi(dstate_getinfo("ups.work.mode")) == LINE))
      {
-          shutdown_ups();
+          ret = shutdown_ups();
+          if(ret)
+          {
+               upslogx(LOG_ERR, "Ups shutdown failed with code: [%d]", ret);
+          }
      }
+#if 0
      else if(!ups_on_line())
      {
           close_server();
      }
+#endif
      else
      {
           upslogx(LOG_INFO, "Ups has been shutdown!");
@@ -518,8 +518,7 @@ static void Santak_send_Q6()                    /* added */
      ser_comm_good();
 
 #if SANTAK_DEBUG
-     write(STDOUT_FILENO, buf, strlen(buf));
-     printf("\n");
+     printf("%s\n", buf);
 #endif
 
      int out_len = 0;
@@ -530,12 +529,14 @@ static void Santak_send_Q6()                    /* added */
      print_data(santak_info_Q6, out_len);
 #endif
 
-#if 1
-     int sys_mode = atoi(santak_info_Q6->sys_mode.value);
+     char tmp_buf[2] = {0};
+     memset(tmp_buf, 0, 2);
+     memcpy(tmp_buf, santak_info_Q6->sys_mode_n_bat_test_status.value, 1);
+     int sys_mode = atoi(tmp_buf);
+     dstate_setinfo("system.work.mode", "%d", sys_mode);
 
-     if(FAULT == atoi(santak_info_Q6->sys_mode.value))
+     if(FAULT == sys_mode)
      {
-          dstate_setinfo(santak_info_Q6->sys_mode.key, "%d", atoi(santak_info_Q6->sys_mode.value));
           dstate_setinfo(santak_info_Q6->fault_code.key, "%s", santak_info_Q6->fault_code.value);
 #if 0
           close_server();
@@ -557,7 +558,7 @@ static void Santak_send_Q6()                    /* added */
                status_set("TRIM");
           }
      }
-     else if(BAT == atoi(santak_info_Q6->sys_mode.value))
+     else if(BAT == sys_mode)
      {
           status_set("OB");
      }
@@ -570,33 +571,15 @@ static void Santak_send_Q6()                    /* added */
           status_set("STANDLY");
      }
 
+     dstate_setinfo(santak_info_Q6->cap_percentage.key, "%d", atoi(santak_info_Q6->cap_percentage.value));
+     dstate_setinfo(santak_info_Q6->remain_time.key, "%d", atoi(santak_info_Q6->remain_time.value));
      if(BAT == sys_mode)
      {
-     if(atoi(santak_info_Q6->remain_time.value) > 360)
-     {
-          dstate_setinfo(santak_info_Q6->remain_time.key, "%d", atoi(santak_info_Q6->remain_time.value));
-     }
-     else
-     {
-          status_set("LB");
-#if 0
-          close_server();
-#endif
-          return;
-     }
-     }
-     else
-     {
-          dstate_setinfo(santak_info_Q6->remain_time.key, "%d", atoi(santak_info_Q6->remain_time.value));
-     }          
-
-     if(atoi(santak_info_Q6->cap_percentage.value) > 40)
-          dstate_setinfo(santak_info_Q6->cap_percentage.key, "%d", atoi(santak_info_Q6->cap_percentage.value));
-     else
-     {
-          status_set("LB");
-          /*close_server();*/
-          return;
+          if(atoi(santak_info_Q6->remain_time.value) < 360 ||
+               atoi(santak_info_Q6->cap_percentage.value) < 40)
+          {
+               status_set("LB");
+          }
      }
 
      dstate_setinfo(santak_info_Q6->R_in_volt.key, "%.1f", atof(santak_info_Q6->R_in_volt.value));
@@ -617,7 +600,9 @@ static void Santak_send_Q6()                    /* added */
      dstate_setinfo(santak_info_Q6->warn_code.key, "%s", santak_info_Q6->warn_code.value);
      dstate_setinfo(santak_info_Q6->rear_data.key, "%s", santak_info_Q6->rear_data.value);
 
-#endif
+     status_commit();
+     dstate_dataok();
+
      return;
 
 }
@@ -640,18 +625,27 @@ static void Santak_send_WA()               /* added */
 
      ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
                SER_WAIT_SEC, SER_WAIT_USEC);
-     if (ret < 1) {
+     if (ret < 1) 
+     {
           ser_comm_fail("Poll failed: %s", ret ? strerror(errno) : "timeout");
           dstate_datastale();
           return;
      }
 
-     if (buf[0] != '(') {
+     if (buf[0] != '(') 
+     {
           ser_comm_fail("Poll failed: invalid start character (got %02x)",
                     buf[0]);
           dstate_datastale();
           return;
      }
+     else if(strlen(buf) != 77)
+     {
+          ser_comm_fail("information recive error, [%ld] character recieved.", strlen(buf));
+          dstate_datastale();
+          return;
+     }
+
      ser_comm_good();
 
 #if SANTAK_DEBUG
@@ -666,10 +660,42 @@ static void Santak_send_WA()               /* added */
 #if SANTAK_DEBUG
      print_data(santak_info_WA, out_len);
 #endif
-#if 1
-     if(santak_info_WA->ups_status.value[4] == '1')
+
+     int i = 0;
+
+     for(i = 0; i < STATUS_CODE_LEN; ++i)
      {
-          return;
+          if('1' == santak_info_WA->ups_status.value[i])
+          {
+               if(0 == i)
+               {
+                    status_set("LINE ABNORMAL");
+               }
+               else if(1 == i)
+               {
+                    status_set("LB");
+               }
+               else if(2 == i)
+               {
+                    status_set("BYPASS");
+               }
+               else if(3 == i)
+               {
+                    status_set("UPS FAULT");
+               }
+               else if(4 == i)
+               {
+                    status_set("OB");
+               }
+               else if(5 == i)
+               {
+                    status_set("TESTING");
+               }
+               else if(6 == i)
+               {
+                    status_set("UPS OFF");
+               }
+          }
      }
 
      dstate_setinfo(santak_info_WA->R_out_power.key, "%.1f", atof(santak_info_WA->R_out_power.value));
@@ -685,7 +711,9 @@ static void Santak_send_WA()               /* added */
      dstate_setinfo(santak_info_WA->T_out_current.key, "%.1f", atof(santak_info_WA->T_out_current.value));
      dstate_setinfo(santak_info_WA->out_load_rate.key, "%.1f", atof(santak_info_WA->out_load_rate.value));
      dstate_setinfo(santak_info_WA->ups_status.key, "%.1f", atof(santak_info_WA->ups_status.value));
-#endif
+
+     status_commit();
+     dstate_dataok();
      return;
 }
 
