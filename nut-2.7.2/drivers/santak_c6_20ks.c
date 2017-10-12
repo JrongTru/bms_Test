@@ -46,6 +46,9 @@
 #define DATA_BUF_SZ 64
 #define MAX_BUF_SZ 256
 
+#define DATA_SEG_Q6 (sizeof(proto_Q6_info_t)/sizeof(santak_state_t))
+#define DATA_SEG_WA (sizeof(proto_WA_info_t)/sizeof(santak_state_t))
+
 /* driver description structure */
 upsdrv_info_t upsdrv_info = {
      DRIVER_NAME,
@@ -62,8 +65,23 @@ upsdrv_info_t upsdrv_info = {
 #define SER_WAIT_SEC	3	/* allow 3.0 sec for ser_get calls */
 #define SER_WAIT_USEC	0
 
-static enum Mode{
-     POWERON = 0, STANDLY, BYPASS, LINE, BAT, BATTEST, FAULT, CONVERTER, HE, SHUTDOWN, };
+static enum Mode_t{
+     POWERON = 0, 
+     STANDLY, 
+     BYPASS, 
+     LINE, 
+     BAT, 
+     BATTEST, 
+     FAULT, 
+     CONVERTER, 
+     HE, 
+     SHUTDOWN 
+} enum_mode;
+
+static enum proto_type_t{
+     PROTO_Q6 = 0,
+     PROTO_WA   
+} proto_type;
 
 typedef struct santak_state{
      char key[DATA_BUF_SZ];
@@ -152,7 +170,7 @@ static int instcmd(const char *cmdname, const char *extra)
 static void Santak_init_buffer()
 {
      /* initialize the buffer for getting data responsed by Q6 protocol */
-     santak_info_Q6 = (proto_Q6_info_t *)malloc(sizeof(proto_Q6_info_t));
+     santak_info_Q6 = (proto_Q6_info_t *)xmalloc(sizeof(proto_Q6_info_t));
      memset(santak_info_Q6, 0, sizeof(proto_Q6_info_t));
 
      strcpy(santak_info_Q6->sys_mode_n_bat_test_status.key, "sys.mode.and.battery.status");
@@ -185,7 +203,7 @@ static void Santak_init_buffer()
      strcpy(santak_info_Q6->rear_data.key, "protocol.rear.data");
 
      /* initialize the buffer for getting data responsed by WA protocol */
-     santak_info_WA = (proto_WA_info_t *)malloc(sizeof(proto_WA_info_t));
+     santak_info_WA = (proto_WA_info_t *)xmalloc(sizeof(proto_WA_info_t));
      memset(santak_info_WA, 0, sizeof(proto_WA_info_t));
 
      strcpy(santak_info_WA->R_out_power.key, "ups.R.output.power");
@@ -209,11 +227,46 @@ static void Santak_init_buffer()
      strcpy(santak_info_WA->ups_status.key, "ups.status");
 }
 
-static int Santak_get_info(char * in_data, void * data_buf, int * out_len)
+static int Santak_get_info(char * in_data, void * data_buf, int * out_len, int type)
 {
-     int i = 0;
+     if(!in_data || !data_buf || !out_len)
+     {
+          char err_msg[DATA_BUF_SZ] = {0};
+          if(!in_data)
+          {
+               strcpy(err_msg, "in_data");
+          }
+          if(!data_buf)
+          {
+               strcat(err_msg, " data_buf");
+          }
+          if(!out_len)
+          {
+               strcat(err_msg, " out_len");
+          }
+
+          upslogx(LOG_ERR, "Parameter error: [%s] get a null value!", err_msg);
+          return -1;
+     }
+
+     size_t i = 0;
      char * tmp = in_data;
      unsigned long offset = sizeof(santak_state_t);
+     size_t data_seg = 0;
+
+     if(PROTO_Q6 == type)
+     {
+          data_seg = DATA_SEG_Q6;
+     }
+     else if(PROTO_WA == type)
+     {
+          data_seg = DATA_SEG_WA;
+     }
+     else
+     {
+          upslogx(LOG_WARNING, "Unkown protocol type!");
+          return -1;
+     }
 
      /*"(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d 3 2 NULL NULL YO\r"*/
      while(*(++tmp))
@@ -228,7 +281,7 @@ static int Santak_get_info(char * in_data, void * data_buf, int * out_len)
                     return 0;
                }
 
-               memcpy((char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ + j), tmp, 1);
+               *(char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ + j) = *tmp;
                ++tmp;
                ++j;
           }
@@ -237,11 +290,20 @@ static int Santak_get_info(char * in_data, void * data_buf, int * out_len)
                return -1;
           }
           ++i;
+          if(data_seg < i)
+          {
+               upslogx(LOG_ERR, "Data segment [%ld] more than expected [%ld] with protocol [%s]",
+                         i, data_seg, PROTO_Q6 == type? "Q6":"WA");
+               return -1;
+          }
      }
+
+     *out_len = i;
 
      return 0; 
 }
 
+#if SANTAK_DEBUG
 static void print_data(void *data, int data_len)
 {
      int i = 0;
@@ -252,6 +314,7 @@ static void print_data(void *data, int data_len)
           printf("%s: %s\n", (char *)((unsigned long)data+offset*i), (char *)((unsigned long)data+offset*i+DATA_BUF_SZ));
      }
 }
+#endif
 
 static int close_server()
 {
@@ -344,10 +407,7 @@ static int shutdown_ups()
                     continue;
                }
           }
-#if SANTAK_DEBUG
-          printf("%s\n", buf);
-          printf("Exiting!\n");
-#endif
+
           sleep(1);
           return 0;
      }
@@ -431,7 +491,7 @@ static int ups_on_line(void)
                continue;
           }
 
-          ret = Santak_get_info(buf, santak_info_Q6, &len);
+          ret = Santak_get_info(buf, santak_info_Q6, &len, PROTO_Q6);
           if(ret)
           {
                upslogx(LOG_WARNING, "get information from buffer error!");
@@ -523,7 +583,11 @@ static void Santak_send_Q6()                    /* added */
 
      int out_len = 0;
      /*"(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d 3 2 NULL NULL YO\r"*/
-     Santak_get_info(buf, santak_info_Q6, &out_len);
+     ret = Santak_get_info(buf, santak_info_Q6, &out_len, PROTO_Q6);
+     if(ret)
+     {
+          return;
+     }
 
 #if SANTAK_DEBUG
      print_data(santak_info_Q6, out_len);
@@ -538,9 +602,6 @@ static void Santak_send_Q6()                    /* added */
      if(FAULT == sys_mode)
      {
           dstate_setinfo(santak_info_Q6->fault_code.key, "%s", santak_info_Q6->fault_code.value);
-#if 0
-          close_server();
-#endif
           return;
      }
      else if(LINE == sys_mode)
@@ -639,12 +700,6 @@ static void Santak_send_WA()               /* added */
           dstate_datastale();
           return;
      }
-     else if(strlen(buf) != 77)
-     {
-          ser_comm_fail("information recive error, [%ld] character recieved.", strlen(buf));
-          dstate_datastale();
-          return;
-     }
 
      ser_comm_good();
 
@@ -655,7 +710,11 @@ static void Santak_send_WA()               /* added */
 
      int out_len = 0;
      /* (254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r */
-     Santak_get_info(buf, santak_info_WA, &out_len);
+     ret = Santak_get_info(buf, santak_info_WA, &out_len, PROTO_WA);
+     if(ret)
+     {
+          return;
+     }
 
 #if SANTAK_DEBUG
      print_data(santak_info_WA, out_len);
