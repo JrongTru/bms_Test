@@ -299,12 +299,17 @@ static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, in
           }
 
           ++i; /* move to next segment */
+          if(i > data_seg)
+          {
+               break;
+          }
+
           j = 0; /* reset the position to get the character */
      }
 
      if(data_seg != i)
      {
-          upslogx(LOG_ERR, "Data segment [%ld] more than expected [%ld] with protocol [%s]", i, data_seg, PROTO_Q6 == type? "Q6":"WA");
+          upslogx(LOG_ERR, "Data segment [%ld] is not expected [%ld] with protocol [%s]", i, data_seg, PROTO_Q6 == type? "Q6":"WA");
           return -1;
      }
 
