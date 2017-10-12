@@ -253,6 +253,7 @@ static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, in
      char * tmp = in_data;
      unsigned long offset = sizeof(santak_state_t);
      size_t data_seg = 0;
+     unsigned long j = 0;
 
      if(PROTO_Q6 == type)
      {
@@ -271,36 +272,40 @@ static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, in
      /*"(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d 3 2 NULL NULL YO\r"*/
      while(*(++tmp))
      {
-          unsigned long j = 0;
 
-          /* set zero for getting data from in_data */
-          memset((char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ), 0, DATA_BUF_SZ);
-
-          while(*tmp!=' ' && *tmp!='\t')
+          if(!j)
           {
+               /* to reset buffer for getting data from in_data, if j has a not zero value which means we saving charater to the same buffer and mustn't be reset. */
+               memset((char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ), 0, DATA_BUF_SZ);
+          }
+          if(*tmp!=' ' && *tmp!='\t')
+          {
+#if 0
                if(!*tmp)
                {
                     *out_seg = i;
                     return 0;
                }
-
+#endif
                *(char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ + j) = *tmp;
-               ++tmp;
+               /* ++tmp; */
                ++j;
+               continue;
           }
+
           if(!*(char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ))
           {
-               return -1;
+               break;
           }
 
           ++i; /* move to next segment */
+          j = 0; /* reset the position to get the character */
+     }
 
-          if(data_seg < i)
-          {
-               upslogx(LOG_ERR, "Data segment [%ld] more than expected [%ld] with protocol [%s]",
-                         i, data_seg, PROTO_Q6 == type? "Q6":"WA");
-               return -1;
-          }
+     if(data_seg != i)
+     {
+          upslogx(LOG_ERR, "Data segment [%ld] more than expected [%ld] with protocol [%s]", i, data_seg, PROTO_Q6 == type? "Q6":"WA");
+          return -1;
      }
 
      *out_seg = i;
@@ -575,47 +580,47 @@ static void Santak_send_Q6()                    /* added */
 
      for (i = 0; i < MAXTRIES; ++i) 
      {
-     ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_Q6);
+          ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_Q6);
 
-     if (ret < 1) 
-     {
-          ser_comm_fail("ser_send_pace failed");
-          dstate_datastale();
-          continue;
-     }
+          if (ret < 1) 
+          {
+               ser_comm_fail("ser_send_pace failed");
+               dstate_datastale();
+               continue;
+          }
 
-     /* these things need a long time to respond completely */
-     usleep(200000);
+          /* these things need a long time to respond completely */
+          usleep(200000);
 
-     ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
-               SER_WAIT_SEC, SER_WAIT_USEC);
-     if (ret < 1) 
-     {
-          ser_comm_fail("Poll failed: %s", ret ? strerror(errno) : "timeout");
-          dstate_datastale();
-          continue;
-     }
+          ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
+                    SER_WAIT_SEC, SER_WAIT_USEC);
+          if (ret < 1) 
+          {
+               ser_comm_fail("Poll failed: %s", ret ? strerror(errno) : "timeout");
+               dstate_datastale();
+               continue;
+          }
 
-     if (buf[0] != '(') 
-     {
-          ser_comm_fail("Poll failed: invalid start character (got %02x)",
-                    buf[0]);
-          dstate_datastale();
-          continue;
-     }
+          if (buf[0] != '(') 
+          {
+               ser_comm_fail("Poll failed: invalid start character (got %02x)",
+                         buf[0]);
+               dstate_datastale();
+               continue;
+          }
 
 #if SANTAK_DEBUG
-     printf("%s\n", buf);
+          printf("%s\n", buf);
 #endif
 
-     /*"(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d 3 2 NULL NULL YO\r"*/
-     ret = Santak_get_info(buf, santak_info_Q6, &out_seg, PROTO_Q6);
-     if(ret)
-     {
-          continue;
-     }
+          /*"(231.1 000.0 000.0 50.0 231.1 000.0 000.0 50.0 50 000 000 11.9 11.9 25.0 %d %d 3 2 NULL NULL YO\r"*/
+          ret = Santak_get_info(buf, santak_info_Q6, &out_seg, PROTO_Q6);
+          if(ret)
+          {
+               continue;
+          }
 
-     break;
+          break;
      }
 
      if(ret)
@@ -674,7 +679,7 @@ static void Santak_send_Q6()                    /* added */
      if(BAT == sys_mode)
      {
           if(atoi(santak_info_Q6->remain_time.value) < 360 ||
-               atoi(santak_info_Q6->cap_percentage.value) < 40)
+                    atoi(santak_info_Q6->cap_percentage.value) < 40)
           {
                status_set("LB");
           }
@@ -714,47 +719,47 @@ static void Santak_send_WA()               /* added */
 
      for (i = 0; i < MAXTRIES; i++) 
      {
-     ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_WA);
+          ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_WA);
 
-     if (ret < 1) {
-          ser_comm_fail("ser_send_pace failed");
-          dstate_datastale();
-          continue;
-     }
+          if (ret < 1) {
+               ser_comm_fail("ser_send_pace failed");
+               dstate_datastale();
+               continue;
+          }
 
-     /* these things need a long time to respond completely */
-     usleep(200000);
+          /* these things need a long time to respond completely */
+          usleep(200000);
 
-     ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
-               SER_WAIT_SEC, SER_WAIT_USEC);
-     if (ret < 1) 
-     {
-          ser_comm_fail("Poll failed: %s", ret ? strerror(errno) : "timeout");
-          dstate_datastale();
-          continue;
-     }
+          ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
+                    SER_WAIT_SEC, SER_WAIT_USEC);
+          if (ret < 1) 
+          {
+               ser_comm_fail("Poll failed: %s", ret ? strerror(errno) : "timeout");
+               dstate_datastale();
+               continue;
+          }
 
-     if (buf[0] != '(') 
-     {
-          ser_comm_fail("Poll failed: invalid start character (got %02x)",
-                    buf[0]);
-          dstate_datastale();
-          continue;
-     }
+          if (buf[0] != '(') 
+          {
+               ser_comm_fail("Poll failed: invalid start character (got %02x)",
+                         buf[0]);
+               dstate_datastale();
+               continue;
+          }
 
 
 #if SANTAK_DEBUG
-     printf("%s\n", buf);
+          printf("%s\n", buf);
 #endif
 
-     /* (254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r */
-     ret = Santak_get_info(buf, santak_info_WA, &out_seg,PROTO_WA);
-     if(ret)
-     {
-          continue;
-     }
+          /* (254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r */
+          ret = Santak_get_info(buf, santak_info_WA, &out_seg,PROTO_WA);
+          if(ret)
+          {
+               continue;
+          }
 
-     break;
+          break;
      }
 
      if(ret)
