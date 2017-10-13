@@ -140,7 +140,8 @@ static proto_WA_info_t * santak_info_WA;
 
 static void model_set(const char *abbr, const char *rating)
 {
-     if (!strcmp(abbr, "SAN")) {
+     if (!strcmp(abbr, "SAN")) 
+     {
           dstate_setinfo("ups.mfr", "%s", "Santak Power");
           dstate_setinfo("ups.model", "Santak %s", rating);
           return;
@@ -278,7 +279,7 @@ static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, in
 
           if(!j)
           {
-               /* to reset buffer for getting data from in_data, if j has a not zero value which means we saving charater to the same buffer and mustn't be reset. */
+               /* reset buffer for getting data from in_data, if j has a nonzero value which means we saving charater to the same buffer which mustn't be reset. */
                memset((char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ), 0, DATA_BUF_SZ);
           }
           if(*tmp!=' ' && *tmp!='\t')
@@ -307,7 +308,7 @@ static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, in
                break;
           }
 
-          j = 0; /* reset the position to get the character */
+          j = 0; /* reset the position to get the next character */
      }
 
      if(data_seg != i)
@@ -442,11 +443,24 @@ static void ups_sync(void)
      int ret = 0;
      size_t out_seg = 0;
 
-     for (i = 0; i < MAXTRIES; i++) {
-          ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_Q6);/* modified */
-
+     for (i = 0; i < MAXTRIES; ++i) 
+     {
+          ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_Q6);/* modified */
+          if (ret < 1) 
+          {
+               ser_comm_fail("ser_send_pace failed");
+               dstate_datastale();
+               continue;
+          }
+          
           ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
                     SER_WAIT_SEC, SER_WAIT_USEC);
+          if (ret < 1) 
+          {
+               ser_comm_fail("Poll failed: %s", ret ? strerror(errno) : "timeout");
+               dstate_datastale();
+               continue;
+          }
 
 #if SANTAK_DEBUG
           if(ret > 0)
@@ -785,6 +799,7 @@ static void Santak_send_Q6()                    /* added */
 
      dstate_setinfo(santak_info_Q6->ups_temp.key, "%s", santak_info_Q6->ups_temp.value);
 
+     /* should be saved into the tree with string format */
      dstate_setinfo(santak_info_Q6->warn_code.key, "%s", santak_info_Q6->warn_code.value);
      dstate_setinfo(santak_info_Q6->rear_data.key, "%s", santak_info_Q6->rear_data.value);
 
@@ -803,11 +818,12 @@ static void Santak_send_WA()               /* added */
      size_t out_seg = 0;
      proto_type = PROTO_WA;
 
-     for (i = 0; i < MAXTRIES; i++) 
+     for (i = 0; i < MAXTRIES; ++i) 
      {
           ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_WA);
 
-          if (ret < 1) {
+          if (ret < 1) 
+          {
                ser_comm_fail("ser_send_pace failed");
                dstate_datastale();
                continue;
@@ -912,7 +928,7 @@ static void Santak_send_WA()               /* added */
      dstate_setinfo(santak_info_WA->T_out_current.key, "%.1f", atof(santak_info_WA->T_out_current.value));
      dstate_setinfo(santak_info_WA->out_load_rate.key, "%.1f", atof(santak_info_WA->out_load_rate.value));
 #endif
-
+     
      dstate_setinfo(santak_info_WA->R_out_power.key, "%s", santak_info_WA->R_out_power.value);
      dstate_setinfo(santak_info_WA->S_out_power.key, "%s", santak_info_WA->S_out_power.value);
      dstate_setinfo(santak_info_WA->T_out_power.key, "%s", santak_info_WA->T_out_power.value);
@@ -944,7 +960,7 @@ void upsdrv_updateinfo(void)        /* modified */
      usleep(50000);
      Santak_send_WA();
 
-     status_commit();
+     status_commit(); /* commit the status which has been settled just now */
 }
 
 void upsdrv_help(void)
