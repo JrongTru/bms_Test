@@ -284,22 +284,15 @@ static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, in
           }
           if(*tmp!=' ' && *tmp!='\t')
           {
-#if 0
-               if(!*tmp)
-               {
-                    *out_seg = i;
-                    return 0;
-               }
-#endif
                *(char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ + j) = *tmp;
-               /* ++tmp; */
                ++j;
                continue;
           }
 
           if(!*(char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ))
           {
-               break;
+               /* skip more than one whitespace and shouldn't move to next segment */
+               continue;
           }
 
           ++i; /* move to next segment */
