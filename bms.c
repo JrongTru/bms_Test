@@ -23,8 +23,6 @@
 #define SAN_WA "(254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r"
 
 #define SAN_PATH "/dev/ttyUSB1"
-#define BATTERY_MODE 0
-#define ERR_MODE 1
 
 #define WAITING "BMS is running!\n"
 #define GET_MSG "Get a msg: "
@@ -37,11 +35,35 @@ int select_read(const int, void *, const size_t, const long, const long);
 int select_write(const int, const void *, const size_t, const long, const long);
 int get_line(int, char *, size_t);
 
+int bat_mode;
+int err_mode;
+
 int main(int argc,char *argv[])
 {
+     bat_mode = 0;
+     err_mode = 0;
+
+     if(argc != 3)
+     {
+          printf("You must give me two args for setting the bms mode.\n");
+          return -1;
+     }
+     if('1' == argv[1][0])
+     {
+          bat_mode = 1;
+     }
+     if('1' == argv[2][0])
+     {
+          err_mode = 1;
+     }
+
      int bmsfd = open(SAN_PATH, O_RDWR);
 
-     set_comm_opt(bmsfd);
+     int ret = set_comm_opt(bmsfd);
+     if(ret)
+     {
+          return -1;
+     }
 
      do_communication(bmsfd);
 
@@ -57,14 +79,17 @@ void do_communication(int bmsfd)
      int percentage = 60;
      int sys_mode = 3;
      char * rear = "";
-#if ERR_MODE
-     rear = " xx";
-#endif
 
-     if(BATTERY_MODE)
+     if(err_mode)
+     {
+          rear = " xx";
+     }
+
+     if(bat_mode)
      {
           sys_mode = 4;
      }
+
      do
      {
           write(STDOUT_FILENO, WAITING, strlen(WAITING));
@@ -81,9 +106,10 @@ void do_communication(int bmsfd)
                     if(remain_t > 1 && percentage > 1)
                     {
                          sprintf(buf, SAN_Q6, remain_t, percentage, sys_mode, rear);
-#if BATTERY_MODE
-                         remain_t -= 3;
-#endif
+                         if(bat_mode)
+                         {
+                              remain_t -= 3;
+                         }
                          rear = "";
                     }
                     else
@@ -96,17 +122,20 @@ void do_communication(int bmsfd)
                else if(!memcmp(buf, "WA", 2))
                {
                     memset(buf, 0, sizeof(buf));
-                    if(flag >= 10)
+                    if(remain_t < 360 || percentage < 40)
                     {
-                         sprintf(buf, SAN_WA, "10001100");
-                         flag = 0;
+                         sprintf(buf, SAN_WA, "11001000");
                     }
                     else
                     {
-                         sprintf(buf, SAN_WA, "00000100");
-#if BATTERY_MODE
-                         ++flag;
-#endif
+                         if(bat_mode)
+                         {
+                              sprintf(buf, SAN_WA, "10001000");
+                         }
+                         else
+                         {
+                              sprintf(buf, SAN_WA, "00100000");
+                         }
                     }
                }
                else if(!memcmp(buf, "(S", 2))
@@ -130,7 +159,7 @@ void do_communication(int bmsfd)
                     remain = atof(tmp) * 60;
                     for(;remain > 0; --remain)
                     {
-                         printf("Battery will be turned off withi %.2f s\n", remain);
+                         printf("Battery will be turned off within %.2f s\n", remain);
                          sleep(1);
                     }
                     printf("BMS exits!\n");

@@ -65,7 +65,7 @@ upsdrv_info_t upsdrv_info = {
 #define SER_WAIT_SEC	3	/* allow 3.0 sec for ser_get calls */
 #define SER_WAIT_USEC	0
 
-static enum Mode_t{
+static enum sys_mode_t{
      POWERON = 0, 
      STANDLY, 
      BYPASS, 
@@ -76,7 +76,7 @@ static enum Mode_t{
      CONVERTER, 
      HE, 
      SHUTDOWN 
-} enum_mode;
+} sys_mode;
 
 static enum proto_type_t{
      PROTO_Q6 = 0,
@@ -129,8 +129,12 @@ typedef struct proto_WA_info{
 }proto_WA_info_t;
 
 static	float	lowvolt = 0, highvolt = 0;
+
+#if 0
 static int ser_fd = 0;
 static struct sockaddr_in serv_addr;
+#endif
+
 static proto_Q6_info_t * santak_info_Q6;
 static proto_WA_info_t * santak_info_WA;
 
@@ -199,7 +203,6 @@ static void Santak_init_buffer()
      strcpy(santak_info_Q6->n_batt_volt.key, "battery.negative.voltage");
 
      strcpy(santak_info_Q6->ups_temp.key, "ups.temperature");
-     /*strcpy(santak_info_Q6->bat_test_status.key, "battery.test.status");*/
      strcpy(santak_info_Q6->rear_data.key, "protocol.rear.data");
 
      /* initialize the buffer for getting data responsed by WA protocol */
@@ -224,7 +227,7 @@ static void Santak_init_buffer()
 
      strcpy(santak_info_WA->out_load_rate.key, "ups.output.load.rate");
 
-     strcpy(santak_info_WA->ups_status.key, "ups.status");
+     strcpy(santak_info_WA->ups_status.key, "ups.run.status");
 }
 
 static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, int type)
@@ -331,6 +334,7 @@ static void print_data(void *data, size_t data_len)
 }
 #endif
 
+#if 0
 static int close_server()
 {
      int i = 0;
@@ -403,6 +407,7 @@ static int close_server()
 
      return ret;
 }
+#endif
 
 static int shutdown_ups()
 {
@@ -642,10 +647,16 @@ static void Santak_send_Q6()                    /* added */
 
      char tmp_buf[2] = {0};
      memset(tmp_buf, 0, 2);
-     memcpy(tmp_buf, santak_info_Q6->sys_mode_n_bat_test_status.value, 1);
-     int sys_mode = atoi(tmp_buf);
+     tmp_buf[0] = santak_info_Q6->sys_mode_n_bat_test_status.value[0];
+     sys_mode = atoi(tmp_buf);
      dstate_setinfo("system.work.mode", "%d", sys_mode);
-
+#if 0
+     tmp_buf[0] = santak_info_Q6->sys_mode_n_bat_test_status.value[1];
+     int bat_test_status = atoi(tmp_buf);
+#endif
+     dstate_setinfo("battery.test.status", "%c", santak_info_Q6->sys_mode_n_bat_test_status.value[1]);
+     
+#if 0
      if(FAULT == sys_mode)
      {
           dstate_setinfo(santak_info_Q6->fault_code.key, "%s", santak_info_Q6->fault_code.value);
@@ -689,7 +700,54 @@ static void Santak_send_Q6()                    /* added */
                status_set("LB");
           }
      }
+#endif
 
+     dstate_setinfo(santak_info_Q6->cap_percentage.key, "%d", atoi(santak_info_Q6->cap_percentage.value));
+     dstate_setinfo(santak_info_Q6->remain_time.key, "%d", atoi(santak_info_Q6->remain_time.value));
+
+     switch(sys_mode)
+     {
+          case POWERON:
+               status_set("POWERON"); break;
+          case STANDLY:
+               status_set("STANDLY"); break;
+          case BYPASS:
+               status_set("BYPASS"); break;
+          case LINE:
+               status_set("OL"); break;
+          case BAT:
+               status_set("OB"); 
+               if(atof(santak_info_Q6->R_in_volt.value) < atof(santak_info_Q6->R_out_volt.value))
+               {
+                    status_set("BOOST");
+               }
+               else
+               {
+                    status_set("TRIM");
+               }
+               if(atoi(santak_info_Q6->remain_time.value) < 360 ||
+                    atoi(santak_info_Q6->cap_percentage.value) < 40)
+               {
+                    status_set("LB");
+               }
+               break;
+          case BATTEST:
+               status_set("BATTEST"); break;
+          case FAULT:
+               status_set("FAULT"); break;
+          case CONVERTER:
+               status_set("CONVERTER"); break;
+          case HE:
+               status_set("HE"); break;
+          case SHUTDOWN:
+               status_set("SHUTDOWN"); break;
+          default:
+               upslogx(LOG_WARNING, "Get an invalid system value [%d] from UPS!", sys_mode);
+               dstate_datastale();
+               return;
+     }
+
+#if 0
      dstate_setinfo(santak_info_Q6->R_in_volt.key, "%.1f", atof(santak_info_Q6->R_in_volt.value));
      dstate_setinfo(santak_info_Q6->S_in_volt.key, "%.1f", atof(santak_info_Q6->S_in_volt.value));
      dstate_setinfo(santak_info_Q6->T_in_volt.key, "%.1f", atof(santak_info_Q6->T_in_volt.value));
@@ -704,11 +762,33 @@ static void Santak_send_Q6()                    /* added */
      dstate_setinfo(santak_info_Q6->p_batt_volt.key, "%.1f", atof(santak_info_Q6->p_batt_volt.value));
      dstate_setinfo(santak_info_Q6->n_batt_volt.key, "%.1f", atof(santak_info_Q6->n_batt_volt.value));
      dstate_setinfo(santak_info_Q6->ups_temp.key, "%.1f", atof(santak_info_Q6->ups_temp.value));
+#endif
+
+     dstate_setinfo(santak_info_Q6->R_in_volt.key, "%s", santak_info_Q6->R_in_volt.value);
+     dstate_setinfo(santak_info_Q6->S_in_volt.key, "%s", santak_info_Q6->S_in_volt.value);
+     dstate_setinfo(santak_info_Q6->T_in_volt.key, "%s", santak_info_Q6->T_in_volt.value);
+
+     dstate_setinfo(santak_info_Q6->ups_in_Hz.key, "%s", santak_info_Q6->ups_in_Hz.value);
+
+     dstate_setinfo(santak_info_Q6->R_out_volt.key, "%s", santak_info_Q6->R_out_volt.value);
+     dstate_setinfo(santak_info_Q6->S_out_volt.key, "%s", santak_info_Q6->S_out_volt.value);
+     dstate_setinfo(santak_info_Q6->T_out_volt.key, "%s", santak_info_Q6->T_out_volt.value);
+
+     dstate_setinfo(santak_info_Q6->R_out_current.key, "%s", santak_info_Q6->R_out_current.value);
+     dstate_setinfo(santak_info_Q6->S_out_current.key, "%s", santak_info_Q6->S_out_current.value);
+     dstate_setinfo(santak_info_Q6->T_out_current.key, "%s", santak_info_Q6->T_out_current.value);
+
+     dstate_setinfo(santak_info_Q6->ups_out_Hz.key, "%s", santak_info_Q6->ups_out_Hz.value);
+
+     dstate_setinfo(santak_info_Q6->p_batt_volt.key, "%s", santak_info_Q6->p_batt_volt.value);
+     dstate_setinfo(santak_info_Q6->n_batt_volt.key, "%s", santak_info_Q6->n_batt_volt.value);
+
+     dstate_setinfo(santak_info_Q6->ups_temp.key, "%s", santak_info_Q6->ups_temp.value);
 
      dstate_setinfo(santak_info_Q6->warn_code.key, "%s", santak_info_Q6->warn_code.value);
      dstate_setinfo(santak_info_Q6->rear_data.key, "%s", santak_info_Q6->rear_data.value);
 
-     status_commit();
+     //status_commit();
      dstate_dataok();
 
      return;
@@ -721,6 +801,7 @@ static void Santak_send_WA()               /* added */
      int ret = 0;
      char buf[MAX_BUF_SZ] = {0};
      size_t out_seg = 0;
+     proto_type = PROTO_WA;
 
      for (i = 0; i < MAXTRIES; i++) 
      {
@@ -752,13 +833,12 @@ static void Santak_send_WA()               /* added */
                continue;
           }
 
-
 #if SANTAK_DEBUG
           printf("%s\n", buf);
 #endif
 
           /* (254.2 000.0 000.0 313.4 000.0 000.0 254.2 313.4 11.0 000.0 000.0 50 %s\r */
-          ret = Santak_get_info(buf, santak_info_WA, &out_seg,PROTO_WA);
+          ret = Santak_get_info(buf, santak_info_WA, &out_seg, proto_type);
           if(ret)
           {
                continue;
@@ -778,7 +858,6 @@ static void Santak_send_WA()               /* added */
 #if SANTAK_DEBUG
      print_data(santak_info_WA, out_seg);
 #endif
-
 
      dstate_setinfo(santak_info_WA->ups_status.key, "%s", santak_info_WA->ups_status.value);
 
@@ -800,23 +879,26 @@ static void Santak_send_WA()               /* added */
                }
                else if(3 == i)
                {
-                    status_set("UPS FAULT");
+                    status_set("FAULT");
                }
                else if(4 == i)
                {
-                    status_set("OB");
+                    if(atoi(dstate_getinfo("system.work.mode")) != BAT)
+                    {
+                         status_set("OB");
+                    }
                }
                else if(5 == i)
                {
-                    status_set("TESTING");
+                    status_set("TEST");
                }
                else if(6 == i)
                {
-                    status_set("UPS OFF");
+                    status_set("OFF");
                }
           }
      }
-
+#if 0
      dstate_setinfo(santak_info_WA->R_out_power.key, "%.1f", atof(santak_info_WA->R_out_power.value));
      dstate_setinfo(santak_info_WA->S_out_power.key, "%.1f", atof(santak_info_WA->S_out_power.value));
      dstate_setinfo(santak_info_WA->T_out_power.key, "%.1f", atof(santak_info_WA->T_out_power.value));
@@ -829,22 +911,40 @@ static void Santak_send_WA()               /* added */
      dstate_setinfo(santak_info_WA->S_out_current.key, "%.1f", atof(santak_info_WA->S_out_current.value));
      dstate_setinfo(santak_info_WA->T_out_current.key, "%.1f", atof(santak_info_WA->T_out_current.value));
      dstate_setinfo(santak_info_WA->out_load_rate.key, "%.1f", atof(santak_info_WA->out_load_rate.value));
-     dstate_setinfo(santak_info_WA->ups_status.key, "%.1f", atof(santak_info_WA->ups_status.value));
+#endif
 
-     status_commit();
+     dstate_setinfo(santak_info_WA->R_out_power.key, "%s", santak_info_WA->R_out_power.value);
+     dstate_setinfo(santak_info_WA->S_out_power.key, "%s", santak_info_WA->S_out_power.value);
+     dstate_setinfo(santak_info_WA->T_out_power.key, "%s", santak_info_WA->T_out_power.value);
+
+     dstate_setinfo(santak_info_WA->R_out_ap_power.key, "%s", santak_info_WA->R_out_ap_power.value);
+     dstate_setinfo(santak_info_WA->S_out_ap_power.key, "%s", santak_info_WA->S_out_ap_power.value);
+     dstate_setinfo(santak_info_WA->T_out_ap_power.key, "%s", santak_info_WA->T_out_ap_power.value);
+
+     dstate_setinfo(santak_info_WA->total_power.key, "%s", santak_info_WA->total_power.value);
+     dstate_setinfo(santak_info_WA->total_ap_power.key, "%s", santak_info_WA->total_ap_power.value);
+
+     dstate_setinfo(santak_info_WA->R_out_current.key, "%s", santak_info_WA->R_out_current.value);
+     dstate_setinfo(santak_info_WA->S_out_current.key, "%s", santak_info_WA->S_out_current.value);
+     dstate_setinfo(santak_info_WA->T_out_current.key, "%s", santak_info_WA->T_out_current.value);
+
+     dstate_setinfo(santak_info_WA->out_load_rate.key, "%s", santak_info_WA->out_load_rate.value);
+     
+
      dstate_dataok();
      return;
 }
 
 void upsdrv_updateinfo(void)        /* modified */
 {
+     /* initialize the status buffer for the next setting */
+     status_init();
+
      Santak_send_Q6();
      usleep(50000);
      Santak_send_WA();
 
-     status_init();
      status_commit();
-     dstate_dataok();
 }
 
 void upsdrv_help(void)
