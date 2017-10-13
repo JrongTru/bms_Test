@@ -190,8 +190,8 @@ static void Santak_init_buffer()
      strcpy(santak_info_Q6->T_in_volt.key, "ups.T.input.voltage");
 
      strcpy(santak_info_Q6->R_out_volt.key, "ups.R.output.voltage");
-     strcpy(santak_info_Q6->S_out_volt.key, "ups.R.output.voltage");
-     strcpy(santak_info_Q6->T_out_volt.key, "ups.R.output.voltage");
+     strcpy(santak_info_Q6->S_out_volt.key, "ups.S.output.voltage");
+     strcpy(santak_info_Q6->T_out_volt.key, "ups.T.output.voltage");
 
      strcpy(santak_info_Q6->ups_in_Hz.key, "ups.in.Hz");
      strcpy(santak_info_Q6->ups_out_Hz.key, "ups.out.Hz");
