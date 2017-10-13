@@ -462,6 +462,14 @@ static void ups_sync(void)
                continue;
           }
 
+          if (buf[0] != '(') 
+          {
+               ser_comm_fail("Poll failed: invalid start character (got %02x)",
+                         buf[0]);
+               dstate_datastale();
+               continue;
+          }
+
 #if SANTAK_DEBUG
           if(ret > 0)
           {
@@ -535,17 +543,27 @@ static int ups_on_line(void)
      for (i = 0; i < MAXTRIES; i++) 
      {
           ret = ser_send_pace(upsfd, UPSDELAY, SANTAK_SEND_Q6);
-          if(ret < 3)
+          if (ret < 1) 
           {
-               upslogx(LOG_WARNING, "[%s] ser_send_pace failed!", __func__);
+               ser_comm_fail("ser_send_pace failed");
+               dstate_datastale();
                continue;
           }
 
           ret = ser_get_line(upsfd, buf, sizeof(buf), ENDCHAR, "", 
                     SER_WAIT_SEC, SER_WAIT_USEC);
-          if(ret < 0)
+          if (ret < 1) 
           {
-               upslogx(LOG_WARNING, "Detect ups on line error! [%s]", strerror(errno));
+               ser_comm_fail("Poll failed: %s", ret ? strerror(errno) : "timeout");
+               dstate_datastale();
+               continue;
+          }
+
+          if (buf[0] != '(') 
+          {
+               ser_comm_fail("Poll failed: invalid start character (got %02x)",
+                         buf[0]);
+               dstate_datastale();
                continue;
           }
 
