@@ -284,6 +284,7 @@ static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, in
           }
           if(*tmp!=' ' && *tmp!='\t')
           {
+               /* set character into the proper location */
                *(char *)((unsigned long)data_buf + offset*i + DATA_BUF_SZ + j) = *tmp;
                ++j;
                continue;
@@ -296,12 +297,13 @@ static int Santak_get_info(char * in_data, void * data_buf, size_t * out_seg, in
           }
 
           ++i; /* move to next segment */
+          /* the counts of segments more than expected break the loop and return fault */
           if(i > data_seg)
           {
                break;
           }
 
-          j = 0; /* reset the position to get the next character */
+          j = 0; /* reset the position to set the character to next segment */
      }
 
      if(data_seg != i)
